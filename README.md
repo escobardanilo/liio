@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Liio
 
-## Getting Started
+Liio is an age-aware AI learning tutor designed to guide students through schoolwork without simply returning the final answer.
 
-First, run the development server:
+## Why Liio
+
+AI tutors can easily become answer machines. Liio is designed to help students continue reasoning, understand where they are stuck, and take the next useful step instead of outsourcing the work.
+
+## Learning model
+
+The Homework session uses three pedagogical behaviors:
+
+- **EXPLAIN** — explains a concept directly, with language and depth adapted to the student's age.
+- **GUIDE** — helps the student work through an exercise one step at a time without revealing the protected final answer.
+- **CHECK** — reviews the student's proposed answer or reasoning without replacing it with a completed solution.
+
+Messages such as “I don't understand,” “make it easier,” “give me a hint,” or “speak Portuguese” modify the current learning interaction. They do not start a separate generic chatbot conversation.
+
+## How the Homework flow works
+
+```text
+Student
+  ↓
+Learning Session
+  ↓
+EXPLAIN / GUIDE / CHECK
+              ↓
+        Safety evaluation
+              ↓
+      Child-safe response
+```
+
+GUIDE responses pass through an independent evaluator and deterministic constraints. A rejected response may be regenerated once, evaluated again, and replaced with a safe fallback if it still fails.
+
+CHECK uses a separate evaluation policy suited to reviewing student work. It prevents the tutor from revealing or directly confirming the protected final answer while still identifying where reasoning needs revision.
+
+Evaluator results and internal feedback are never sent to the child interface.
+
+## Guardrails
+
+Liio combines:
+
+- independent model-based evaluation;
+- Zod validation for structured evaluator output;
+- deterministic checks for question count, response length, age-related cognitive load, and repeated teaching strategies after explicit confusion;
+- bounded regeneration with no unlimited retry loop;
+- deterministic safe fallbacks;
+- child-facing output normalization to prevent raw Markdown or LaTeX artifacts.
+
+The model generates. Software decides what is allowed to reach the child.
+
+## Stack
+
+- Next.js
+- React
+- TypeScript
+- Groq using `openai/gpt-oss-120b`
+- Zod
+- CSS
+- Vercel deployment target
+
+AI requests and evaluator activity run server-side. `GROQ_API_KEY` is not exposed to the browser. Age policies currently cover ages 6–15.
+
+## Run locally
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create `.env.local`:
+
+```env
+GROQ_API_KEY=your_groq_api_key
+```
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Current scope
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This repository is the current portfolio/demo version of Liio.
 
-## Learn More
+- Homework is the implemented AI learning mode.
+- Parent controls and related product surfaces use demo or local state where applicable.
+- Production user accounts and a persistent database are not required in this version.
+- The product remains under development.
 
-To learn more about Next.js, take a look at the following resources:
+## Project status
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Liio is in active development. This repository represents the first functional version of the learning architecture and Homework tutor.
