@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:learning-session": "node --import tsx --test lib/ai/policies/learning-session.test.ts",
+    "test:identity": "node --conditions=react-server --env-file=.env.local --import tsx --test lib/ai/policies/homework-identity.test.ts",
     "test:constraints": "node --import tsx --test lib/ai/evaluation/candidate-constraints.test.ts",
     "test:evaluator": "node --conditions=react-server --env-file=.env.local --import tsx --test lib/ai/evaluation/homework-evaluator.test.ts",
     "test:check-evaluator": "node --conditions=react-server --env-file=.env.local --import tsx --test lib/ai/evaluation/homework-check-evaluator.test.ts"
