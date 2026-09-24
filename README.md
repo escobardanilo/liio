@@ -1,53 +1,20 @@
-# Liio
+# SON
 
-Liio is an age-aware AI learning tutor designed to guide students through schoolwork without simply returning the final answer.
+SON (System Operations Navigator) is an AI operational assistant for industrial operators, technicians and supervisors. It helps teams understand technical concepts, investigate issues, review observations and recognize when an authorized human role must take over.
 
-## Why Liio
+## Operational model
 
-AI tutors can easily become answer machines. Liio is designed to help students continue reasoning, understand where they are stuck, and take the next useful step instead of outsourcing the work.
+The assistant uses three focused behaviors:
 
-## Learning model
+- **EXPLAIN** — explains equipment, alarms and technical concepts without presenting generic knowledge as a site-specific procedure.
+- **GUIDE** — guides a safe investigation one observational step at a time.
+- **VERIFY** — reviews supplied observations without certifying safety, compliance or readiness.
 
-The Homework session uses three pedagogical behaviors:
-
-- **EXPLAIN** — explains a concept directly, with language and depth adapted to the student's age.
-- **GUIDE** — helps the student work through an exercise one step at a time without revealing the protected final answer.
-- **CHECK** — reviews the student's proposed answer or reasoning without replacing it with a completed solution.
-
-Messages such as “I don't understand,” “make it easier,” “give me a hint,” or “speak Portuguese” modify the current learning interaction. They do not start a separate generic chatbot conversation.
-
-## How the Homework flow works
-
-```text
-Student
-  ↓
-Learning Session
-  ↓
-EXPLAIN / GUIDE / CHECK
-              ↓
-        Safety evaluation
-              ↓
-      Child-safe response
-```
-
-GUIDE responses pass through an independent evaluator and deterministic constraints. A rejected response may be regenerated once, evaluated again, and replaced with a safe fallback if it still fails.
-
-CHECK uses a separate evaluation policy suited to reviewing student work. It prevents the tutor from revealing or directly confirming the protected final answer while still identifying where reasoning needs revision.
-
-Evaluator results and internal feedback are never sent to the child interface.
+Every generated response passes through an independent operational evaluator. A rejected response may be regenerated once, evaluated again and replaced with a deterministic safe fallback if it still fails.
 
 ## Guardrails
 
-Liio combines:
-
-- independent model-based evaluation;
-- Zod validation for structured evaluator output;
-- deterministic checks for question count, response length, age-related cognitive load, and repeated teaching strategies after explicit confusion;
-- bounded regeneration with no unlimited retry loop;
-- deterministic safe fallbacks;
-- child-facing output normalization to prevent raw Markdown or LaTeX artifacts.
-
-The model generates. Software decides what is allowed to reach the child.
+SON combines server-side generation, Zod-validated structured evaluation, deterministic checks, bounded regeneration, output sanitation and safe fallbacks. It does not operate equipment, authorize physical work, bypass safety controls, invent procedures or claim access to documents that were not retrieved.
 
 ## Stack
 
@@ -59,7 +26,7 @@ The model generates. Software decides what is allowed to reach the child.
 - CSS
 - Vercel deployment target
 
-AI requests and evaluator activity run server-side. `GROQ_API_KEY` is not exposed to the browser. Age policies currently cover ages 6–15.
+AI requests and evaluator activity run server-side. `GROQ_API_KEY` is not exposed to the browser.
 
 ## Run locally
 
@@ -85,13 +52,4 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Current scope
 
-This repository is the current portfolio/demo version of Liio.
-
-- Homework is the implemented AI learning mode.
-- Parent controls and related product surfaces use demo or local state where applicable.
-- Production user accounts and a persistent database are not required in this version.
-- The product remains under development.
-
-## Project status
-
-Liio is in active development. This repository represents the first functional version of the learning architecture and Homework tutor.
+The Operational Assistant is connected to the server-side AI flow. Operations, Knowledge, Equipment, Activity, issue reporting and Supervisor surfaces use explicit demonstration/local data. No live machinery, document retrieval, RAG pipeline, user account or production ticketing system is connected.
