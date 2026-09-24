@@ -1,22 +1,9 @@
 "use client";
-
-import { Boxes, CircleCheck, Gauge, Search, TriangleAlert } from "lucide-react";
+import { BookOpenText, ChevronRight, Search, X } from "lucide-react";
+import { useState } from "react";
 import type { TranslationKey } from "../../lib/i18n/translations";
 import { useLocale } from "../components/locale-provider";
 import { DemoBadge, PageHeading, SonShell } from "../components/son-shell";
-
-const equipment = [
-  { id: "CV-L3", name: "Conveyor L3", area: "equipment.material", status: "equipment.attention", state: "attention", icon: TriangleAlert },
-  { id: "PK-01", name: "Packaging Line", area: "equipment.packaging", status: "equipment.operational", state: "operational", icon: CircleCheck },
-  { id: "P-204", name: "Pump P-204", area: "equipment.utilities", status: "equipment.inspection", state: "inspection-due", icon: Gauge },
-  { id: "MX-08", name: "Mixer MX-08", area: "equipment.processing", status: "equipment.operational", state: "operational", icon: CircleCheck },
-] satisfies Array<{ id: string; name: string; area: TranslationKey; status: TranslationKey; state: string; icon: typeof Boxes }>;
-
-export default function EquipmentPage() {
-  const { t } = useLocale();
-  return <SonShell active="equipment">
-    <PageHeading eyebrow={t("equipment.eyebrow")} title={t("equipment.title")} description={t("equipment.description")} action={<DemoBadge />} />
-    <label className="search-field"><Search size={19} /><input type="search" placeholder={t("equipment.search")} aria-label={t("equipment.search")} /></label>
-    <section className="equipment-grid">{equipment.map(({ id, name, area, status, state, icon: Icon }) => <article className="equipment-card" key={id}><div className="equipment-card__top"><span className="equipment-card__icon"><Boxes size={21} /></span><span className={`asset-state asset-state--${state}`}><Icon size={14} />{t(status)}</span></div><div><small>{id}</small><h2>{name}</h2><p>{t(area)}</p></div><button type="button">{t("equipment.view")}</button></article>)}</section>
-  </SonShell>;
-}
+type Equipment = { id: string; name: string; area: TranslationKey; status: TranslationKey; state: string; activity: TranslationKey; docs: number };
+const equipment: Equipment[] = [{ id: "CV-L3", name: "Conveyor L3", area: "equipment.material", status: "equipment.attention", state: "attention", activity: "recent.e42", docs: 4 }, { id: "PK-01", name: "Packaging Line", area: "equipment.packaging", status: "equipment.operational", state: "operational", activity: "recent.startup", docs: 6 }, { id: "P-204", name: "Pump P-204", area: "equipment.utilities", status: "equipment.inspection", state: "inspection", activity: "recent.pressure", docs: 3 }, { id: "MX-08", name: "Mixer MX-08", area: "equipment.processing", status: "equipment.operational", state: "operational", activity: "equipment.noRecentActivity", docs: 5 }];
+export default function EquipmentPage() { const { t } = useLocale(); const [selected, setSelected] = useState<Equipment | null>(null); return <SonShell active="equipment"><div className="workspace-page"><PageHeading eyebrow={t("equipment.eyebrow")} title={t("equipment.title")} description={t("equipment.description")} action={<DemoBadge />} /><section className="workspace-toolbar"><label className="workspace-search"><Search size={17} /><input type="search" placeholder={t("equipment.search")} /></label><span className="toolbar-count">4 {t("equipment.assets")}</span></section><section className="panel data-workspace"><div className="data-table equipment-table"><div className="data-row data-row--head"><span>{t("equipment.assetId")}</span><span>{t("equipment.equipment")}</span><span>{t("equipment.area")}</span><span>{t("equipment.status")}</span><span>{t("equipment.lastActivity")}</span><span>{t("equipment.documentation")}</span><span /></div>{equipment.map((asset) => <button className="data-row" type="button" key={asset.id} onClick={() => setSelected(asset)}><strong>{asset.id}</strong><span>{asset.name}</span><span>{t(asset.area)}</span><span className={`status status--${asset.state}`}>{t(asset.status)}</span><span>{t(asset.activity)}</span><span><BookOpenText size={15} /> {asset.docs}</span><ChevronRight size={17} /></button>)}</div></section>{selected && <><button className="detail-backdrop" onClick={() => setSelected(null)} aria-label={t("equipment.closeDetails")} /><aside className="asset-drawer"><header><div><p className="eyebrow">{selected.id}</p><h2>{selected.name}</h2></div><button onClick={() => setSelected(null)} aria-label={t("equipment.closeDetails")}><X size={20} /></button></header><dl><div><dt>{t("equipment.area")}</dt><dd>{t(selected.area)}</dd></div><div><dt>{t("equipment.status")}</dt><dd>{t(selected.status)}</dd></div><div><dt>{t("equipment.lastActivity")}</dt><dd>{t(selected.activity)}</dd></div><div><dt>{t("equipment.documentation")}</dt><dd>{selected.docs}</dd></div></dl><div className="notice"><span>{t("equipment.demoDetail")}</span></div></aside></>}</div></SonShell>; }

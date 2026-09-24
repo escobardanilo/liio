@@ -31,12 +31,12 @@ export async function POST(request: Request) {
       if (!firstEvaluation.pass) {
         const regenerated = sanitizeDraft(await generateText({ model: OPERATIONS_MODEL, maxTokens: 900, system: buildOperationsCorrectionPrompt(interaction.behavior, interaction.operationalRequest, firstEvaluation.reasons, locale), messages }));
         const secondEvaluation = await evaluateOperationalCandidate({ ...interaction, conversation: messages, candidateResponse: regenerated.text });
-        finalResponse = secondEvaluation.pass ? regenerated : { id: crypto.randomUUID(), text: buildDeterministicOperationalFallback(interaction.behavior) };
+        finalResponse = secondEvaluation.pass ? regenerated : { id: crypto.randomUUID(), text: buildDeterministicOperationalFallback(interaction.behavior, locale) };
       }
     } catch (evaluationError) {
       if (evaluationError instanceof AiConfigurationError) throw evaluationError;
       console.error("Operational safety evaluation failed", evaluationError instanceof Error ? evaluationError.message : "Unknown error");
-      finalResponse = { id: crypto.randomUUID(), text: buildDeterministicOperationalFallback(interaction.behavior) };
+      finalResponse = { id: crypto.randomUUID(), text: buildDeterministicOperationalFallback(interaction.behavior, locale) };
     }
     return Response.json({ message: { id: finalResponse.id, role: "assistant", content: finalResponse.text } });
   } catch (error) {

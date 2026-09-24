@@ -10,7 +10,8 @@
     "test:operations": "node --import tsx --test lib/ai/policies/operational-session.test.ts",
     "test:operational-evaluator": "node --conditions=react-server --import tsx --test lib/ai/evaluation/operational-evaluator.test.ts",
     "test:i18n": "node --conditions=react-server --import tsx --test lib/i18n/translations.test.ts",
-    "test": "npm run test:operations && npm run test:operational-evaluator && npm run test:i18n"
+    "test:conversation": "node --import tsx --test lib/ai/conversation/operational-conversation.test.ts",
+    "test": "npm run test:operations && npm run test:operational-evaluator && npm run test:i18n && npm run test:conversation"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

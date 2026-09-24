@@ -41,3 +41,10 @@ test("fallbacks never claim authority or document access", () => {
     assert.match(fallback, /responsible|approved|verified/i);
   }
 });
+
+test("deterministic fallbacks respect every selected locale", () => {
+  assert.match(buildDeterministicOperationalFallback("GUIDE", "pt"), /informação|equipamento/i);
+  assert.match(buildDeterministicOperationalFallback("GUIDE", "en"), /information|equipment/i);
+  assert.match(buildDeterministicOperationalFallback("GUIDE", "es"), /información|equipo/i);
+  assert.match(buildDeterministicOperationalFallback("GUIDE", "de"), /Informationen|Anlage/i);
+});

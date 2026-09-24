@@ -1,18 +1,7 @@
 "use client";
-
-import { AlertTriangle, CheckCircle2, FileText, Wrench } from "lucide-react";
+import { Filter, Search } from "lucide-react";
 import type { TranslationKey } from "../../lib/i18n/translations";
 import { useLocale } from "../components/locale-provider";
 import { DemoBadge, PageHeading, SonShell } from "../components/son-shell";
-
-const events = [
-  { time: "09:42", title: "activity.troubleshooting", detail: "activity.troubleshootingDetail", type: "activity.investigation", icon: Wrench },
-  { time: "09:18", title: "activity.procedure", detail: "activity.procedureDetail", type: "status.completed", icon: CheckCircle2 },
-  { time: "time.yesterday", title: "activity.escalated", detail: "activity.escalatedDetail", type: "status.escalated", icon: AlertTriangle },
-  { time: "time.yesterday", title: "activity.document", detail: null, type: "activity.knowledge", icon: FileText },
-] satisfies Array<{ time: string; title: TranslationKey; detail: TranslationKey | null; type: TranslationKey; icon: typeof Wrench }>;
-
-export default function ActivityPage() {
-  const { t } = useLocale();
-  return <SonShell active="activity"><PageHeading eyebrow={t("activity.eyebrow")} title={t("activity.title")} description={t("activity.description")} action={<DemoBadge />} /><section className="panel timeline">{events.map(({ time, title, detail, type, icon: Icon }) => <article className="timeline__item" key={`${time}-${title}`}><span className="timeline__icon"><Icon size={18} /></span><div><strong>{t(title)}</strong><p>{detail ? t(detail) : "Conveyor_X200_Manual.pdf · Page 83"}</p><small>{time.includes(".") ? t(time as TranslationKey) : time}</small></div><span className="event-type">{t(type)}</span></article>)}</section></SonShell>;
-}
+const events: Array<[string, TranslationKey, TranslationKey | null, string, string, TranslationKey]> = [["09:42", "activity.troubleshooting", "activity.troubleshootingDetail", "Operator 04", "Conveyor L3", "status.progress"], ["09:18", "activity.procedure", "activity.procedureDetail", "Operator 02", "Packaging Line", "status.completed"], ["08:54", "activity.document", null, "Operator 04", "Conveyor L3", "activity.knowledge"], ["time.yesterday", "activity.escalated", "activity.escalatedDetail", "Operator 04", "Pump P-204", "status.escalated"]];
+export default function ActivityPage() { const { t } = useLocale(); return <SonShell active="activity"><div className="workspace-page"><PageHeading eyebrow={t("activity.eyebrow")} title={t("activity.title")} description={t("activity.description")} action={<DemoBadge />} /><section className="workspace-toolbar"><label className="workspace-search"><Search size={17} /><input type="search" placeholder={t("activity.search")} /></label><button className="toolbar-button" type="button"><Filter size={15} />{t("activity.filter")}</button></section><section className="panel data-workspace"><div className="data-table activity-log"><div className="data-row data-row--head"><span>{t("activity.time")}</span><span>{t("activity.event")}</span><span>{t("activity.operator")}</span><span>{t("recent.asset")}</span><span>{t("recent.status")}</span></div>{events.map(([time, title, detail, operator, asset, status]) => <div className="data-row" key={`${time}-${title}`}><span>{time.includes(".") ? t(time as TranslationKey) : time}</span><span><strong>{t(title)}</strong><small>{detail ? t(detail) : "Conveyor_X200_Manual.pdf · Page 83"}</small></span><span>{operator}</span><span>{asset}</span><span className={`status status--${status.split(".")[1]}`}>{t(status)}</span></div>)}</div></section></div></SonShell>; }

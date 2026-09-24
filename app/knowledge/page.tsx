@@ -1,29 +1,7 @@
 "use client";
-
-import { BookCopy, FileCheck2, FileCog, FileText, ScrollText, ShieldAlert } from "lucide-react";
-import type { TranslationKey } from "../../lib/i18n/translations";
+import { FileText, Filter, Search } from "lucide-react";
 import { useLocale } from "../components/locale-provider";
 import { DemoBadge, PageHeading, SonShell } from "../components/son-shell";
-
-const categories = [
-  ["knowledge.manuals", "knowledge.manualsDesc", BookCopy, "knowledge.demoFiles", 12],
-  ["knowledge.sops", "knowledge.sopsDesc", ScrollText, "knowledge.demoFiles", 8],
-  ["knowledge.instructions", "knowledge.instructionsDesc", FileCheck2, "knowledge.demoFiles", 15],
-  ["knowledge.safety", "knowledge.safetyDesc", ShieldAlert, "knowledge.demoFiles", 6],
-  ["knowledge.datasheets", "knowledge.datasheetsDesc", FileCog, "knowledge.demoFiles", 9],
-  ["knowledge.records", "knowledge.recordsDesc", FileText, "knowledge.demoRecords", 24],
-] as const satisfies ReadonlyArray<readonly [TranslationKey, TranslationKey, typeof BookCopy, TranslationKey, number]>;
-
-const demoDocuments = [
-  ["SOP-L3-014", "knowledge.docConveyor", "knowledge.revision"], ["Conveyor_X200_Manual.pdf", "knowledge.docManual", "knowledge.pages"], ["MP-22", "knowledge.docBelt", "knowledge.maintenanceProcedure"],
-] as const satisfies ReadonlyArray<readonly [string, TranslationKey, TranslationKey]>;
-
-export default function KnowledgePage() {
-  const { t } = useLocale();
-  return <SonShell active="knowledge">
-    <PageHeading eyebrow={t("knowledge.eyebrow")} title={t("knowledge.title")} description={t("knowledge.description")} action={<DemoBadge />} />
-    <div className="notice"><strong>{t("knowledge.noticeTitle")}</strong><span>{t("knowledge.notice")}</span></div>
-    <section className="knowledge-grid">{categories.map(([title, description, Icon, countKey, count]) => <article className="knowledge-card" key={title}><Icon size={22} /><div><strong>{t(title)}</strong><span>{t(description)}</span><small>{t(countKey, { count })}</small></div></article>)}</section>
-    <section className="panel"><div className="panel-heading"><div><p className="eyebrow">{t("knowledge.static")}</p><h2>{t("knowledge.recent")}</h2></div></div><div className="document-list">{demoDocuments.map(([code, title, meta]) => <article key={code}><span className="document-icon"><FileText size={20} /></span><div><strong>{t(title)}</strong><span>{code}</span></div><small>{t(meta)}</small></article>)}</div></section>
-  </SonShell>;
-}
+const filters = ["knowledge.all", "knowledge.manuals", "knowledge.sops", "knowledge.instructions", "knowledge.safety", "knowledge.datasheets", "knowledge.records"] as const;
+const documents = [["SOP-L3-014", "knowledge.docConveyor", "SOP", "Conveyor L3", "Rev. 4", "knowledge.controlled", "2026-09-18"], ["Conveyor_X200_Manual.pdf", "knowledge.docManual", "knowledge.manuals", "Conveyor L3", "Rev. 7", "knowledge.reference", "2026-08-22"], ["MP-22", "knowledge.docBelt", "knowledge.instructions", "Conveyor L3", "Rev. 2", "knowledge.controlled", "2026-09-14"]] as const;
+export default function KnowledgePage() { const { t } = useLocale(); return <SonShell active="knowledge"><div className="workspace-page"><PageHeading eyebrow={t("knowledge.eyebrow")} title={t("knowledge.title")} description={t("knowledge.description")} action={<DemoBadge />} /><div className="notice"><strong>{t("knowledge.noticeTitle")}</strong><span>{t("knowledge.notice")}</span></div><section className="workspace-toolbar"><label className="workspace-search"><Search size={17} /><input type="search" placeholder={t("knowledge.search")} /></label><div className="filter-strip"><Filter size={15} />{filters.map((key, index) => <button className={index === 0 ? "is-active" : ""} type="button" key={key}>{t(key)}</button>)}</div></section><section className="panel data-workspace"><div className="data-table document-table"><div className="data-row data-row--head"><span>{t("knowledge.document")}</span><span>{t("knowledge.type")}</span><span>{t("knowledge.assetArea")}</span><span>{t("knowledge.revisionColumn")}</span><span>{t("knowledge.status")}</span><span>{t("knowledge.updated")}</span></div>{documents.map(([code, title, type, asset, revision, status, updated]) => <button className="data-row" type="button" key={code}><span className="document-cell"><FileText size={18} /><span><strong>{t(title)}</strong><small>{code}</small></span></span><span>{type === "SOP" ? type : t(type)}</span><span>{asset}</span><span>{revision}</span><span className="status status--completed">{t(status)}</span><span>{updated}</span></button>)}</div></section></div></SonShell>; }
