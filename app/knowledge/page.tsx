@@ -1,26 +1,29 @@
+"use client";
+
 import { BookCopy, FileCheck2, FileCog, FileText, ScrollText, ShieldAlert } from "lucide-react";
+import type { TranslationKey } from "../../lib/i18n/translations";
+import { useLocale } from "../components/locale-provider";
 import { DemoBadge, PageHeading, SonShell } from "../components/son-shell";
 
 const categories = [
-  ["Manuals", "Equipment operation and reference", BookCopy, "12 demo files"],
-  ["SOPs", "Standard operating procedures", ScrollText, "8 demo files"],
-  ["Work Instructions", "Task-level instructions", FileCheck2, "15 demo files"],
-  ["Safety Procedures", "Controlled safety guidance", ShieldAlert, "6 demo files"],
-  ["Technical Datasheets", "Asset specifications", FileCog, "9 demo files"],
-  ["Maintenance Records", "Service history and notes", FileText, "24 demo records"],
-] as const;
+  ["knowledge.manuals", "knowledge.manualsDesc", BookCopy, "knowledge.demoFiles", 12],
+  ["knowledge.sops", "knowledge.sopsDesc", ScrollText, "knowledge.demoFiles", 8],
+  ["knowledge.instructions", "knowledge.instructionsDesc", FileCheck2, "knowledge.demoFiles", 15],
+  ["knowledge.safety", "knowledge.safetyDesc", ShieldAlert, "knowledge.demoFiles", 6],
+  ["knowledge.datasheets", "knowledge.datasheetsDesc", FileCog, "knowledge.demoFiles", 9],
+  ["knowledge.records", "knowledge.recordsDesc", FileText, "knowledge.demoRecords", 24],
+] as const satisfies ReadonlyArray<readonly [TranslationKey, TranslationKey, typeof BookCopy, TranslationKey, number]>;
 
 const demoDocuments = [
-  ["SOP-L3-014", "Conveyor L3 restart and inspection", "SOP · Revision 4"],
-  ["Conveyor_X200_Manual.pdf", "X200 conveyor technical manual", "Manual · 112 pages"],
-  ["MP-22", "Scheduled belt tension inspection", "Maintenance procedure"],
-];
+  ["SOP-L3-014", "knowledge.docConveyor", "knowledge.revision"], ["Conveyor_X200_Manual.pdf", "knowledge.docManual", "knowledge.pages"], ["MP-22", "knowledge.docBelt", "knowledge.maintenanceProcedure"],
+] as const satisfies ReadonlyArray<readonly [string, TranslationKey, TranslationKey]>;
 
 export default function KnowledgePage() {
+  const { t } = useLocale();
   return <SonShell active="knowledge">
-    <PageHeading eyebrow="Knowledge" title="Operational knowledge base" description="A RAG-ready interface for controlled industrial documents." action={<DemoBadge />} />
-    <div className="notice"><strong>Demonstration content only.</strong><span>No document retrieval pipeline is connected. SON will not claim to have accessed these files.</span></div>
-    <section className="knowledge-grid">{categories.map(([title, description, Icon, count]) => <article className="knowledge-card" key={title}><Icon size={22} /><div><strong>{title}</strong><span>{description}</span><small>{count}</small></div></article>)}</section>
-    <section className="panel"><div className="panel-heading"><div><p className="eyebrow">Static examples</p><h2>Recently accessed</h2></div></div><div className="document-list">{demoDocuments.map(([code, title, meta]) => <article key={code}><span className="document-icon"><FileText size={20} /></span><div><strong>{title}</strong><span>{code}</span></div><small>{meta}</small></article>)}</div></section>
+    <PageHeading eyebrow={t("knowledge.eyebrow")} title={t("knowledge.title")} description={t("knowledge.description")} action={<DemoBadge />} />
+    <div className="notice"><strong>{t("knowledge.noticeTitle")}</strong><span>{t("knowledge.notice")}</span></div>
+    <section className="knowledge-grid">{categories.map(([title, description, Icon, countKey, count]) => <article className="knowledge-card" key={title}><Icon size={22} /><div><strong>{t(title)}</strong><span>{t(description)}</span><small>{t(countKey, { count })}</small></div></article>)}</section>
+    <section className="panel"><div className="panel-heading"><div><p className="eyebrow">{t("knowledge.static")}</p><h2>{t("knowledge.recent")}</h2></div></div><div className="document-list">{demoDocuments.map(([code, title, meta]) => <article key={code}><span className="document-icon"><FileText size={20} /></span><div><strong>{t(title)}</strong><span>{code}</span></div><small>{t(meta)}</small></article>)}</div></section>
   </SonShell>;
 }

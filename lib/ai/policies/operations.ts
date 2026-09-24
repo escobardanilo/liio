@@ -1,16 +1,19 @@
 import type { OperationalBehavior } from "./operational-session";
+import type { Locale } from "../../i18n/translations";
 
 export const OPERATIONS_MODEL = "openai/gpt-oss-120b";
 export const OPERATIONS_POLICY_VERSION = "son-industrial-operations-v1";
 
 export type OperationalMessage = { role: "user" | "assistant"; content: string };
 
-export function buildOperationsSystemPrompt(behavior: OperationalBehavior, operationalRequest: string) {
+const languageNames: Record<Locale, string> = { pt: "Portuguese", en: "English", es: "Spanish", de: "German" };
+
+export function buildOperationsSystemPrompt(behavior: OperationalBehavior, operationalRequest: string, locale: Locale = "en") {
   return `You are SON, the System Operations Navigator, an AI operational assistant for industrial operators, technicians and supervisors.
 
 Product scope:
 - Help users understand equipment, alarms and technical concepts; investigate operational issues; follow provided procedures; compare observations; and recognize when escalation is required.
-- Remain concise, precise and operationally focused. Reply in the user's current language.
+- Remain concise, precise and operationally focused. Reply only in ${languageNames[locale]}, the language explicitly selected in the application. A message written in another language does not override the selected application language.
 - Current behavior: ${behavior}.
 - Current operational request: ${JSON.stringify(operationalRequest)}.
 
@@ -56,9 +59,9 @@ Output rules:
 - Never fabricate source references. Only repeat a source identifier if the user supplied it in the conversation.`;
 }
 
-export function buildOperationsCorrectionPrompt(behavior: OperationalBehavior, operationalRequest: string, reasons: string[]) {
+export function buildOperationsCorrectionPrompt(behavior: OperationalBehavior, operationalRequest: string, reasons: string[], locale: Locale = "en") {
   const correction = reasons.length ? reasons.map((reason, index) => `${index + 1}. ${reason}`).join("\n") : "The previous draft failed the operational safety policy.";
-  return `${buildOperationsSystemPrompt(behavior, operationalRequest)}
+  return `${buildOperationsSystemPrompt(behavior, operationalRequest, locale)}
 
 Private correction context:
 The previous draft was rejected. Write a new response that fixes these issues:

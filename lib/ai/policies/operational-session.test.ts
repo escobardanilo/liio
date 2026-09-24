@@ -26,3 +26,19 @@ test("preserves the operational anchor for short modifiers", () => {
   ]);
   assert.deepEqual(interaction, { behavior: "GUIDE", operationalRequest: "Line 3 stopped with error E42." });
 });
+
+test("classifies Spanish and German operational requests", () => {
+  assert.equal(determineOperationalInteraction([{ role: "user", content: "La línea se detuvo con una alarma." }]).behavior, "GUIDE");
+  assert.equal(determineOperationalInteraction([{ role: "user", content: "Ich habe 6,2 bar an der Pumpe gemessen." }]).behavior, "VERIFY");
+});
+
+test("preserves context for Spanish and German modifiers", () => {
+  for (const modifier of ["No entiendo.", "Ich verstehe nicht."]) {
+    const interaction = determineOperationalInteraction([
+      { role: "user", content: "Der Motor ist gestoppt und zeigt einen Fehler." },
+      { role: "assistant", content: "Lesen Sie den Fehlercode ab, ohne die Anlage zu bedienen." },
+      { role: "user", content: modifier },
+    ]);
+    assert.deepEqual(interaction, { behavior: "GUIDE", operationalRequest: "Der Motor ist gestoppt und zeigt einen Fehler." });
+  }
+});
