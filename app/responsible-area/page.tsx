@@ -3,6 +3,10 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { KeyRound, Mail, X } from "lucide-react";
+import {
+  restoreParentSessionIfAllowed,
+  startParentSession,
+} from "@/lib/parent-session";
 import { BackButton, Brand, MobileShell } from "../components/ui";
 import styles from "./page.module.css";
 
@@ -17,7 +21,6 @@ type ParentProfile = {
 };
 
 const PROFILE_STORAGE_KEY = "liio-parent-profile";
-const SESSION_STORAGE_KEY = "liio-parent-session";
 
 const methodLabels: Record<AuthMethod, string> = {
   apple: "Apple",
@@ -79,22 +82,14 @@ export default function ResponsibleAreaPage() {
   useEffect(() => {
     try {
       const storedProfile = window.localStorage.getItem(PROFILE_STORAGE_KEY);
-      const activeSession =
-        window.sessionStorage.getItem(SESSION_STORAGE_KEY) === "active";
-      const legacySession =
-        window.localStorage.getItem(SESSION_STORAGE_KEY) === "active";
+      const hasProfile = Boolean(storedProfile);
 
-      if (storedProfile && (activeSession || legacySession)) {
-        if (legacySession) {
-          window.sessionStorage.setItem(SESSION_STORAGE_KEY, "active");
-          window.localStorage.removeItem(SESSION_STORAGE_KEY);
-        }
-
+      if (restoreParentSessionIfAllowed(hasProfile)) {
         router.replace("/parents-home");
         return;
       }
     } catch {
-      // If storage is unavailable, show the prototype sign-in screen.
+      // If browser storage is unavailable, fall back to the prototype entry.
     }
 
     setCheckingSession(false);
@@ -158,9 +153,7 @@ export default function ResponsibleAreaPage() {
       JSON.stringify(profile),
     );
 
-    window.localStorage.removeItem(SESSION_STORAGE_KEY);
-    window.sessionStorage.setItem(SESSION_STORAGE_KEY, "active");
-
+    startParentSession();
     router.push("/parents-home");
   }
 
@@ -197,7 +190,6 @@ export default function ResponsibleAreaPage() {
             </span>
 
             <span className={styles.label}>Continuar com Apple</span>
-
             <span className={styles.balanceSlot} aria-hidden="true" />
           </button>
 
@@ -211,7 +203,6 @@ export default function ResponsibleAreaPage() {
             </span>
 
             <span className={styles.label}>Continuar com Google</span>
-
             <span className={styles.balanceSlot} aria-hidden="true" />
           </button>
 
@@ -225,7 +216,6 @@ export default function ResponsibleAreaPage() {
             </span>
 
             <span className={styles.label}>Entrar com e-mail</span>
-
             <span className={styles.balanceSlot} aria-hidden="true" />
           </button>
 
@@ -239,7 +229,6 @@ export default function ResponsibleAreaPage() {
             </span>
 
             <span className={styles.label}>Usar passkey</span>
-
             <span className={styles.balanceSlot} aria-hidden="true" />
           </button>
         </div>
