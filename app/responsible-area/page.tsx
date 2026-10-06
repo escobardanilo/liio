@@ -1,7 +1,31 @@
-import Link from "next/link";
-import { KeyRound, Mail } from "lucide-react";
+"use client";
+
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { KeyRound, Mail, X } from "lucide-react";
 import { BackButton, Brand, MobileShell } from "../components/ui";
 import styles from "./page.module.css";
+
+type AuthMethod = "apple" | "google" | "email" | "passkey" | "family";
+
+type ParentProfile = {
+  id: string;
+  name: string;
+  method: AuthMethod;
+  createdAt: string;
+  updatedAt: string;
+};
+
+const PROFILE_STORAGE_KEY = "liio-parent-profile";
+const SESSION_STORAGE_KEY = "liio-parent-session";
+
+const methodLabels: Record<AuthMethod, string> = {
+  apple: "Apple",
+  google: "Google",
+  email: "E-mail",
+  passkey: "Passkey",
+  family: "Family",
+};
 
 function AppleIcon() {
   return (
@@ -46,6 +70,74 @@ function GoogleIcon() {
 }
 
 export default function ResponsibleAreaPage() {
+  const router = useRouter();
+
+  const [selectedMethod, setSelectedMethod] = useState<AuthMethod | null>(null);
+  const [name, setName] = useState("");
+
+  function openProfileSetup(method: AuthMethod) {
+    let savedName = "";
+
+    try {
+      const storedProfile = window.localStorage.getItem(PROFILE_STORAGE_KEY);
+
+      if (storedProfile) {
+        const profile = JSON.parse(storedProfile) as ParentProfile;
+        savedName = profile.name ?? "";
+      }
+    } catch {
+      savedName = "";
+    }
+
+    setName(savedName);
+    setSelectedMethod(method);
+  }
+
+  function closeProfileSetup() {
+    setSelectedMethod(null);
+  }
+
+  function handleContinue(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const normalizedName = name.trim();
+
+    if (!normalizedName || !selectedMethod) {
+      return;
+    }
+
+    let existingProfile: ParentProfile | null = null;
+
+    try {
+      const storedProfile = window.localStorage.getItem(PROFILE_STORAGE_KEY);
+
+      if (storedProfile) {
+        existingProfile = JSON.parse(storedProfile) as ParentProfile;
+      }
+    } catch {
+      existingProfile = null;
+    }
+
+    const now = new Date().toISOString();
+
+    const profile: ParentProfile = {
+      id: existingProfile?.id ?? crypto.randomUUID(),
+      name: normalizedName,
+      method: selectedMethod,
+      createdAt: existingProfile?.createdAt ?? now,
+      updatedAt: now,
+    };
+
+    window.localStorage.setItem(
+      PROFILE_STORAGE_KEY,
+      JSON.stringify(profile),
+    );
+
+    window.localStorage.setItem(SESSION_STORAGE_KEY, "active");
+
+    router.push("/parents-home");
+  }
+
   return (
     <MobileShell className={styles.shell}>
       <section className={styles.page}>
@@ -61,42 +153,137 @@ export default function ResponsibleAreaPage() {
         </p>
 
         <div className={styles.authList}>
-          <Link className={styles.authButton} href="/parents-home">
+          <button
+            className={styles.authButton}
+            type="button"
+            onClick={() => openProfileSetup("apple")}
+          >
             <span className={styles.iconSlot}>
               <AppleIcon />
             </span>
-            <span className={styles.label}>Continuar com Apple</span>
-            <span className={styles.balanceSlot} aria-hidden="true" />
-          </Link>
 
-          <Link className={styles.authButton} href="/parents-home">
+            <span className={styles.label}>Continuar com Apple</span>
+
+            <span className={styles.balanceSlot} aria-hidden="true" />
+          </button>
+
+          <button
+            className={styles.authButton}
+            type="button"
+            onClick={() => openProfileSetup("google")}
+          >
             <span className={styles.iconSlot}>
               <GoogleIcon />
             </span>
-            <span className={styles.label}>Continuar com Google</span>
-            <span className={styles.balanceSlot} aria-hidden="true" />
-          </Link>
 
-          <Link className={styles.authButton} href="/parents-home">
+            <span className={styles.label}>Continuar com Google</span>
+
+            <span className={styles.balanceSlot} aria-hidden="true" />
+          </button>
+
+          <button
+            className={styles.authButton}
+            type="button"
+            onClick={() => openProfileSetup("email")}
+          >
             <span className={styles.iconSlot}>
               <Mail size={28} strokeWidth={2.1} />
             </span>
-            <span className={styles.label}>Entrar com e-mail</span>
-            <span className={styles.balanceSlot} aria-hidden="true" />
-          </Link>
 
-          <Link className={styles.authButton} href="/parents-home">
+            <span className={styles.label}>Entrar com e-mail</span>
+
+            <span className={styles.balanceSlot} aria-hidden="true" />
+          </button>
+
+          <button
+            className={styles.authButton}
+            type="button"
+            onClick={() => openProfileSetup("passkey")}
+          >
             <span className={styles.iconSlot}>
               <KeyRound size={28} strokeWidth={2.15} />
             </span>
+
             <span className={styles.label}>Usar passkey</span>
+
             <span className={styles.balanceSlot} aria-hidden="true" />
-          </Link>
+          </button>
         </div>
 
-        <Link className={styles.createFamily} href="/parents-home">
+        <button
+          className={styles.createFamily}
+          type="button"
+          onClick={() => openProfileSetup("family")}
+        >
           Create family
-        </Link>
+        </button>
+
+        {selectedMethod ? (
+          <div className={styles.modalBackdrop}>
+            <section
+              className={styles.modal}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="parent-profile-title"
+            >
+              <div className={styles.modalHeader}>
+                <div>
+                  <span className={styles.modalEyebrow}>
+                    {methodLabels[selectedMethod]}
+                  </span>
+
+                  <h2 id="parent-profile-title">
+                    Create your profile
+                  </h2>
+                </div>
+
+                <button
+                  className={styles.closeButton}
+                  type="button"
+                  onClick={closeProfileSetup}
+                  aria-label="Close"
+                >
+                  <X size={24} strokeWidth={2.2} />
+                </button>
+              </div>
+
+              <p className={styles.modalDescription}>
+                Tell Liio how we should identify you in the Parents Area.
+              </p>
+
+              <form
+                className={styles.profileForm}
+                onSubmit={handleContinue}
+              >
+                <label>
+                  <span>Your name</span>
+
+                  <input
+                    type="text"
+                    value={name}
+                    maxLength={40}
+                    autoFocus
+                    autoComplete="name"
+                    placeholder="Your name"
+                    onChange={(event) => setName(event.target.value)}
+                  />
+                </label>
+
+                <p className={styles.prototypeNote}>
+                  Prototype access — no external account will be connected.
+                </p>
+
+                <button
+                  className={styles.continueButton}
+                  type="submit"
+                  disabled={!name.trim()}
+                >
+                  Continue
+                </button>
+              </form>
+            </section>
+          </div>
+        ) : null}
       </section>
     </MobileShell>
   );

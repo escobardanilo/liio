@@ -57,6 +57,8 @@
     0 2px 3px rgb(25 20 38 / 4%),
     0 7px 12px rgb(25 20 38 / 8%);
 
+  cursor: pointer;
+
   transition:
     transform 140ms ease,
     box-shadow 140ms ease;
@@ -112,13 +114,161 @@
   display: block;
   width: max-content;
   margin: 74px auto 0;
+  padding: 0;
 
   color: var(--purple);
+  border: 0;
+  background: transparent;
+
   font-size: 15px;
   font-weight: 600;
 
   text-decoration: underline;
   text-underline-offset: 4px;
+
+  cursor: pointer;
+}
+
+.modalBackdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+
+  display: flex;
+  width: min(100%, 393px);
+  align-items: flex-end;
+
+  margin: 0 auto;
+
+  background: rgb(25 20 38 / 42%);
+}
+
+.modal {
+  width: 100%;
+
+  padding:
+    26px
+    22px
+    max(28px, env(safe-area-inset-bottom));
+
+  border-radius: 28px 28px 0 0;
+  background: #fbfaf8;
+
+  box-shadow: 0 -20px 50px rgb(25 20 38 / 18%);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.modalEyebrow {
+  color: var(--purple);
+
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.modalHeader h2 {
+  margin: 7px 0 0;
+
+  color: #191426;
+
+  font-family: var(--font-fredoka), var(--font-inter), sans-serif;
+  font-size: 29px;
+  font-weight: 650;
+  line-height: 1.05;
+}
+
+.closeButton {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+
+  color: #191426;
+  border-radius: 14px;
+  background: #f0ece6;
+
+  cursor: pointer;
+}
+
+.modalDescription {
+  margin: 18px 0 0;
+
+  color: #645b6e;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.profileForm {
+  display: grid;
+  gap: 18px;
+  margin-top: 25px;
+}
+
+.profileForm label {
+  display: grid;
+  gap: 8px;
+}
+
+.profileForm label > span {
+  color: #514a59;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.profileForm input {
+  width: 100%;
+  height: 58px;
+
+  padding: 0 16px;
+
+  color: #191426;
+  border: 1.5px solid #ddd7ce;
+  border-radius: 18px;
+  outline: none;
+
+  background: #ffffff;
+
+  font-size: 16px;
+}
+
+.profileForm input:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgb(109 74 255 / 10%);
+}
+
+.prototypeNote {
+  margin: -4px 0 0;
+
+  color: #817987;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.continueButton {
+  min-height: 56px;
+
+  color: #ffffff;
+  border-radius: 18px;
+
+  background: var(--purple);
+
+  font-size: 16px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.continueButton:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 @media (max-height: 700px) {
