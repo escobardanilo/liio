@@ -7,6 +7,7 @@ import {
   restoreParentSessionIfAllowed,
   startParentSession,
 } from "@/lib/parent-session";
+import { useLiioLanguage } from "../components/use-liio-language";
 import { BackButton, Brand, MobileShell } from "../components/ui";
 import styles from "./page.module.css";
 
@@ -21,6 +22,69 @@ type ParentProfile = {
 };
 
 const PROFILE_STORAGE_KEY = "liio-parent-profile";
+
+const copy = {
+  en: {
+    title: "Parents Area",
+    subtitle: "{t.subtitle}",
+    apple: "Continue with Apple",
+    google: "Continue with Google",
+    email: "Sign in with e-mail",
+    passkey: "Use passkey",
+    createFamily: "{t.createFamily}",
+    createProfile: "{t.createProfile}",
+    description: "{t.description}",
+    yourName: "Your name",
+    placeholder: "Your name",
+    prototype: "{t.prototype}",
+    continue: "Continue",
+  },
+  pt: {
+    title: "Área dos responsáveis",
+    subtitle: "Entra para criar e gerir perfis",
+    apple: "{t.apple}",
+    google: "{t.google}",
+    email: "{t.email}",
+    passkey: "{t.passkey}",
+    createFamily: "Criar família",
+    createProfile: "Criar o teu perfil",
+    description: "Diz ao liio como devemos identificar-te na Área dos responsáveis.",
+    yourName: "O teu nome",
+    placeholder: "O teu nome",
+    prototype: "Acesso de protótipo — nenhuma conta externa será ligada.",
+    continue: "Continuar",
+  },
+  es: {
+    title: "Área de responsables",
+    subtitle: "Inicia sesión para crear y gestionar perfiles",
+    apple: "Continuar con Apple",
+    google: "Continuar con Google",
+    email: "Entrar con e-mail",
+    passkey: "{t.passkey}",
+    createFamily: "Crear familia",
+    createProfile: "Crear tu perfil",
+    description: "Dile a liio cómo debemos identificarte en el Área de responsables.",
+    yourName: "Tu nombre",
+    placeholder: "Tu nombre",
+    prototype: "Acceso de prototipo — no se conectará ninguna cuenta externa.",
+    continue: "Continuar",
+  },
+  de: {
+    title: "Elternbereich",
+    subtitle: "Anmelden, um Profile zu erstellen und zu verwalten",
+    apple: "Mit Apple fortfahren",
+    google: "Mit Google fortfahren",
+    email: "Mit E-Mail anmelden",
+    passkey: "Passkey verwenden",
+    createFamily: "Familie erstellen",
+    createProfile: "Profil erstellen",
+    description: "Sag liio, wie wir dich im Elternbereich nennen sollen.",
+    yourName: "Dein Name",
+    placeholder: "Dein Name",
+    prototype: "Prototypzugang — es wird kein externes Konto verbunden.",
+    continue: "Weiter",
+  },
+} as const;
 
 const methodLabels: Record<AuthMethod, string> = {
   apple: "Apple",
@@ -74,6 +138,8 @@ function GoogleIcon() {
 
 export default function ResponsibleAreaPage() {
   const router = useRouter();
+  const { language } = useLiioLanguage();
+  const t = copy[language];
 
   const [selectedMethod, setSelectedMethod] = useState<AuthMethod | null>(null);
   const [name, setName] = useState("");
@@ -173,10 +239,10 @@ export default function ResponsibleAreaPage() {
           <Brand small />
         </div>
 
-        <h1 className={styles.heading}>Parents Area</h1>
+        <h1 className={styles.heading}>{t.title}</h1>
 
         <p className={styles.subheading}>
-          Sign in to create and manage profiles
+          {t.subtitle}
         </p>
 
         <div className={styles.authList}>
@@ -189,7 +255,7 @@ export default function ResponsibleAreaPage() {
               <AppleIcon />
             </span>
 
-            <span className={styles.label}>Continuar com Apple</span>
+            <span className={styles.label}>{t.apple}</span>
             <span className={styles.balanceSlot} aria-hidden="true" />
           </button>
 
@@ -202,7 +268,7 @@ export default function ResponsibleAreaPage() {
               <GoogleIcon />
             </span>
 
-            <span className={styles.label}>Continuar com Google</span>
+            <span className={styles.label}>{t.google}</span>
             <span className={styles.balanceSlot} aria-hidden="true" />
           </button>
 
@@ -215,7 +281,7 @@ export default function ResponsibleAreaPage() {
               <Mail size={28} strokeWidth={2.1} />
             </span>
 
-            <span className={styles.label}>Entrar com e-mail</span>
+            <span className={styles.label}>{t.email}</span>
             <span className={styles.balanceSlot} aria-hidden="true" />
           </button>
 
@@ -228,7 +294,7 @@ export default function ResponsibleAreaPage() {
               <KeyRound size={28} strokeWidth={2.15} />
             </span>
 
-            <span className={styles.label}>Usar passkey</span>
+            <span className={styles.label}>{t.passkey}</span>
             <span className={styles.balanceSlot} aria-hidden="true" />
           </button>
         </div>
@@ -238,7 +304,7 @@ export default function ResponsibleAreaPage() {
           type="button"
           onClick={() => openProfileSetup("family")}
         >
-          Create family
+          {t.createFamily}
         </button>
 
         {selectedMethod ? (
@@ -256,7 +322,7 @@ export default function ResponsibleAreaPage() {
                   </span>
 
                   <h2 id="parent-profile-title">
-                    Create your profile
+                    {t.createProfile}
                   </h2>
                 </div>
 
@@ -271,7 +337,7 @@ export default function ResponsibleAreaPage() {
               </div>
 
               <p className={styles.modalDescription}>
-                Tell liio how we should identify you in the Parents Area.
+                {t.description}
               </p>
 
               <form
@@ -279,7 +345,7 @@ export default function ResponsibleAreaPage() {
                 onSubmit={handleContinue}
               >
                 <label>
-                  <span>Your name</span>
+                  <span>{t.yourName}</span>
 
                   <input
                     type="text"
@@ -287,13 +353,13 @@ export default function ResponsibleAreaPage() {
                     maxLength={40}
                     autoFocus
                     autoComplete="name"
-                    placeholder="Your name"
+                    placeholder={t.placeholder}
                     onChange={(event) => setName(event.target.value)}
                   />
                 </label>
 
                 <p className={styles.prototypeNote}>
-                  Prototype access — no external account will be connected.
+                  {t.prototype}
                 </p>
 
                 <button
