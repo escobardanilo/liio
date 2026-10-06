@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { liioCopy } from "@/lib/i18n/catalog";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Mascot } from "./mascot";
 import { useLiioLanguage } from "./use-liio-language";
@@ -8,12 +9,8 @@ import { useLiioLanguage } from "./use-liio-language";
 type Shot = { id: number; x: number; y: number; vx: number; vy: number; side: boolean };
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
-const gameCopy = {
-  en: { gameOver: "Game over", score: "Your score", restart: "Restart", enter: "Enter" },
-  pt: { gameOver: "Fim de jogo", score: "A tua pontuação", restart: "Recomeçar", enter: "Entrar" },
-  es: { gameOver: "Fin del juego", score: "Tu puntuación", restart: "Reiniciar", enter: "Entrar" },
-  de: { gameOver: "Spiel vorbei", score: "Deine Punktzahl", restart: "Neu starten", enter: "Zurück" },
-} as const;
+const gameCopy = liioCopy.game;
+
 
 export function SpaceGame() {
   const router = useRouter();
