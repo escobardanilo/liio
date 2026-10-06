@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   createPairingCode,
   decodePairingCode,
-  normalizePairingCode,
 } from "@/lib/device-code";
 import { BackButton, MobileShell } from "../components/ui";
 
@@ -20,21 +19,11 @@ type StoredCode = {
   expiresAt: number;
 };
 
-type CodeMap = Record<
-  string,
-  {
-    childId: string;
-    childName: string;
-    age: number;
-  }
->;
-
 const CHILDREN_KEY = "liio-parent-child-profiles";
-const SELECTED_CHILD_KEY = "liio-selected-child-id";
-const CODE_MAP_KEY = "liio-device-code-map";
+const FAMILY_CODE_KEY = "liio-family-device-code";
 
 export default function DeviceCodesPage() {
-  const [child, setChild] = useState<ChildProfile | null>(null);
+  const [children, setChildren] = useState<ChildProfile[]>([]);
   const [storedCode, setStoredCode] = useState<StoredCode | null>(null);
   const [now, setNow] = useState(Date.now());
   const [copied, setCopied] = useState(false);
@@ -42,42 +31,40 @@ export default function DeviceCodesPage() {
 
   useEffect(() => {
     try {
-      const storedChildren = window.localStorage.getItem(CHILDREN_KEY);
-      const selectedId =
-        window.localStorage.getItem(SELECTED_CHILD_KEY);
+      const storedChildren =
+        window.localStorage.getItem(CHILDREN_KEY);
 
       if (storedChildren) {
-        const children = JSON.parse(storedChildren) as ChildProfile[];
-        const selectedChild =
-          children.find((profile) => profile.id === selectedId) ??
-          children[0] ??
-          null;
+        const parsedChildren = JSON.parse(
+          storedChildren,
+        ) as ChildProfile[];
 
-        setChild(selectedChild);
+        if (Array.isArray(parsedChildren)) {
+          setChildren(parsedChildren);
+        }
+      }
 
-        if (selectedChild) {
-          const savedCode = window.localStorage.getItem(
-            `liio-device-code-${selectedChild.id}`,
+      const savedCode =
+        window.localStorage.getItem(FAMILY_CODE_KEY);
+
+      if (savedCode) {
+        const parsedCode =
+          JSON.parse(savedCode) as StoredCode;
+
+        const isValid =
+          parsedCode.expiresAt > Date.now() &&
+          decodePairingCode(parsedCode.code) !== null;
+
+        if (isValid) {
+          setStoredCode(parsedCode);
+        } else {
+          window.localStorage.removeItem(
+            FAMILY_CODE_KEY,
           );
-
-          if (savedCode) {
-            const parsedCode = JSON.parse(savedCode) as StoredCode;
-            const isValid =
-              parsedCode.expiresAt > Date.now() &&
-              decodePairingCode(parsedCode.code) !== null;
-
-            if (isValid) {
-              setStoredCode(parsedCode);
-            } else {
-              window.localStorage.removeItem(
-                `liio-device-code-${selectedChild.id}`,
-              );
-            }
-          }
         }
       }
     } catch {
-      setChild(null);
+      setChildren([]);
       setStoredCode(null);
     } finally {
       setReady(true);
@@ -99,29 +86,35 @@ export default function DeviceCodesPage() {
 
     return Math.max(
       0,
-      Math.ceil((storedCode.expiresAt - now) / 1000),
+      Math.ceil(
+        (storedCode.expiresAt - now) / 1000,
+      ),
     );
   }, [now, storedCode]);
 
   useEffect(() => {
     if (
       storedCode &&
-      secondsRemaining === 0 &&
-      child
+      secondsRemaining === 0
     ) {
       window.localStorage.removeItem(
-        `liio-device-code-${child.id}`,
+        FAMILY_CODE_KEY,
       );
       setStoredCode(null);
     }
-  }, [child, secondsRemaining, storedCode]);
+  }, [secondsRemaining, storedCode]);
 
   function generateCode() {
-    if (!child) {
+    const firstChild = children[0];
+
+    if (!firstChild) {
       return;
     }
 
-    const pairingCode = createPairingCode(child.name, child.age);
+    const pairingCode = createPairingCode(
+      firstChild.name,
+      firstChild.age,
+    );
 
     const nextCode: StoredCode = {
       code: pairingCode.code,
@@ -129,31 +122,8 @@ export default function DeviceCodesPage() {
     };
 
     window.localStorage.setItem(
-      `liio-device-code-${child.id}`,
+      FAMILY_CODE_KEY,
       JSON.stringify(nextCode),
-    );
-
-    let codeMap: CodeMap = {};
-
-    try {
-      const storedMap = window.localStorage.getItem(CODE_MAP_KEY);
-
-      if (storedMap) {
-        codeMap = JSON.parse(storedMap) as CodeMap;
-      }
-    } catch {
-      codeMap = {};
-    }
-
-    codeMap[normalizePairingCode(pairingCode.code)] = {
-      childId: child.id,
-      childName: child.name,
-      age: child.age,
-    };
-
-    window.localStorage.setItem(
-      CODE_MAP_KEY,
-      JSON.stringify(codeMap),
     );
 
     setStoredCode(nextCode);
@@ -161,24 +131,27 @@ export default function DeviceCodesPage() {
   }
 
   async function shareCode() {
-    if (!storedCode || !child) {
+    if (!storedCode) {
       return;
     }
 
     const message =
-      `Enter this Liio code for ${child.name}: ${storedCode.code}`;
+      `Enter this Liio family code: ${storedCode.code}`;
 
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "Liio device code",
+          title: "Liio family code",
           text: message,
         });
 
         return;
       }
 
-      await navigator.clipboard.writeText(storedCode.code);
+      await navigator.clipboard.writeText(
+        storedCode.code,
+      );
+
       setCopied(true);
     } catch {
       setCopied(false);
@@ -193,8 +166,12 @@ export default function DeviceCodesPage() {
     );
   }
 
-  const minutes = Math.floor(secondsRemaining / 60);
-  const seconds = String(secondsRemaining % 60).padStart(2, "0");
+  const minutes =
+    Math.floor(secondsRemaining / 60);
+
+  const seconds = String(
+    secondsRemaining % 60,
+  ).padStart(2, "0");
 
   return (
     <MobileShell>
@@ -203,10 +180,11 @@ export default function DeviceCodesPage() {
 
         <h1>Devices &amp; codes</h1>
 
-        {child ? (
+        {children.length > 0 ? (
           <>
             <p className="detail-subtitle">
-              Generate a temporary code for {child.name} to enter Liio.
+              Generate a temporary family code. After entering it,
+              the child chooses their profile.
             </p>
 
             <div
@@ -226,7 +204,8 @@ export default function DeviceCodesPage() {
             {storedCode ? (
               <>
                 <p className="device-helper">
-                  Enter this code in <strong>Enter LIIO</strong>
+                  Enter this code in{" "}
+                  <strong>Enter LIIO</strong>
                 </p>
 
                 <div className="device-code">
@@ -243,7 +222,9 @@ export default function DeviceCodesPage() {
                   onClick={shareCode}
                 >
                   <Share2 size={20} />
-                  {copied ? "Code copied" : "Share code"}
+                  {copied
+                    ? "Code copied"
+                    : "Share code"}
                 </button>
 
                 <button
@@ -271,9 +252,11 @@ export default function DeviceCodesPage() {
           </>
         ) : (
           <section className="privacy-card card">
-            <strong>No child selected</strong>
+            <strong>No child profiles yet</strong>
+
             <span>
-              Add a child profile before generating a device code.
+              Add at least one child in the Parents Area before
+              generating a family device code.
             </span>
           </section>
         )}
