@@ -3,6 +3,7 @@
 import { Pencil, Plus, Trash2, UserRound, X } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { MobileShell } from "../components/ui";
+import { ParentsDrawer } from "../components/parents-drawer";
 import styles from "./page.module.css";
 
 type ChildProfile = {
@@ -166,14 +167,7 @@ export default function ParentsHomePage() {
             <h1>Parents</h1>
           </div>
 
-          <button
-            className={styles.headerAdd}
-            type="button"
-            onClick={openCreateProfile}
-            aria-label="Add child"
-          >
-            <Plus size={24} strokeWidth={2.3} />
-          </button>
+          <ParentsDrawer />
         </header>
 
         {profiles.length === 0 ? (
