@@ -91,7 +91,7 @@ const copy = {
 } as const;
 
 export function HomeworkChat() {
-  const { language } = useLiioLanguage();
+  const { language, ready: languageReady } = useLiioLanguage();
   const t = copy[language];
 
   const [child, setChild] = useState<ActiveChildProfile>({
@@ -112,7 +112,7 @@ export function HomeworkChat() {
   const initializedRef = useRef(false);
 
   useEffect(() => {
-    if (initializedRef.current) {
+    if (!languageReady || initializedRef.current) {
       return;
     }
 
@@ -152,7 +152,7 @@ export function HomeworkChat() {
     initializedRef.current = true;
     messagesRef.current = [welcomeMessage];
     setMessages([welcomeMessage]);
-  }, [language, t]);
+  }, [language, languageReady, t]);
 
   useEffect(() => {
     messagesRef.current = messages;
