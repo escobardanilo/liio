@@ -8,8 +8,8 @@ export function MobileShell({ children, className = "", fixed = false }: { child
 
 export function Brand({ small = false }: { small?: boolean }) {
   return (
-    <div className={`brand ${small ? "brand--small" : ""}`} aria-label="Liio">
-      <span className="brand__word">LIIO</span>
+    <div className={`brand ${small ? "brand--small" : ""}`} aria-label="liio">
+      <span className="brand__word">liio</span>
     </div>
   );
 }
