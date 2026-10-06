@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { liioCopy } from "@/lib/i18n/catalog";
+import { listActivity, type ActivityEvent } from "@/lib/services/activity-service";
+import { listChildren } from "@/lib/services/family-service";
 import { useLiioLanguage } from "../components/use-liio-language";
 import { BackButton, MobileShell } from "../components/ui";
 
@@ -11,21 +13,38 @@ type ChildProfile = {
   age: number;
 };
 
-type ActivitySession = {
-  id: string;
-  title: string;
-  meta: string;
-  durationMinutes: number;
-  questions?: number;
-  worlds?: number;
-  color?: string;
-};
-
-const CHILDREN_KEY = "liio-parent-child-profiles";
 const SELECTED_CHILD_KEY = "liio-selected-child-id";
-
 const copy = liioCopy.activity;
 
+function activityTitle(
+  event: ActivityEvent,
+  language: "pt" | "en" | "es" | "de",
+) {
+  if (event.behavior === "GUIDE") {
+    return {
+      pt: "Orientação de tarefa",
+      en: "Guided homework",
+      es: "Tarea guiada",
+      de: "Geführte Hausaufgabe",
+    }[language];
+  }
+
+  if (event.behavior === "CHECK") {
+    return {
+      pt: "Verificação de raciocínio",
+      en: "Reasoning check",
+      es: "Revisión de razonamiento",
+      de: "Lösungsweg geprüft",
+    }[language];
+  }
+
+  return {
+    pt: "Explicação",
+    en: "Explanation",
+    es: "Explicación",
+    de: "Erklärung",
+  }[language];
+}
 
 export default function ActivityPage() {
   const { language } = useLiioLanguage();
@@ -33,24 +52,20 @@ export default function ActivityPage() {
 
   const [child, setChild] =
     useState<ChildProfile | null>(null);
-  const [sessions, setSessions] =
-    useState<ActivitySession[]>([]);
+  const [events, setEvents] =
+    useState<ActivityEvent[]>([]);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    try {
-      const storedChildren =
-        window.localStorage.getItem(CHILDREN_KEY);
+    let cancelled = false;
 
-      const selectedId =
-        window.localStorage.getItem(
-          SELECTED_CHILD_KEY,
-        );
-
-      if (storedChildren) {
-        const children = JSON.parse(
-          storedChildren,
-        ) as ChildProfile[];
+    async function load() {
+      try {
+        const children = await listChildren();
+        const selectedId =
+          window.localStorage.getItem(
+            SELECTED_CHILD_KEY,
+          );
 
         const selectedChild =
           children.find(
@@ -60,53 +75,64 @@ export default function ActivityPage() {
           children[0] ??
           null;
 
+        if (cancelled) {
+          return;
+        }
+
         setChild(selectedChild);
 
         if (selectedChild) {
-          const storedSessions =
-            window.localStorage.getItem(
-              `liio-activity-${selectedChild.id}`,
+          const loadedEvents =
+            await listActivity(
+              selectedChild.id,
             );
 
-          if (storedSessions) {
-            const parsedSessions = JSON.parse(
-              storedSessions,
-            ) as ActivitySession[];
-
-            if (Array.isArray(parsedSessions)) {
-              setSessions(parsedSessions);
-            }
+          if (!cancelled) {
+            setEvents(loadedEvents);
           }
         }
+      } catch {
+        if (!cancelled) {
+          setChild(null);
+          setEvents([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setReady(true);
+        }
       }
-    } catch {
-      setChild(null);
-      setSessions([]);
-    } finally {
-      setReady(true);
     }
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const totals = useMemo(() => {
-    return sessions.reduce(
-      (accumulator, session) => ({
-        minutes:
-          accumulator.minutes +
-          (session.durationMinutes ?? 0),
-        questions:
-          accumulator.questions +
-          (session.questions ?? 0),
-        worlds:
-          accumulator.worlds +
-          (session.worlds ?? 0),
-      }),
-      {
-        minutes: 0,
-        questions: 0,
-        worlds: 0,
-      },
+    const totalDurationMs = events.reduce(
+      (total, event) =>
+        total + (event.durationMs ?? 0),
+      0,
     );
-  }, [sessions]);
+
+    return {
+      minutes: Math.floor(
+        totalDurationMs / 60_000,
+      ),
+      questions: events.filter(
+        (event) =>
+          event.eventType ===
+          "homework_response",
+      ).length,
+      worlds: events.filter(
+        (event) =>
+          event.eventType ===
+          "world_created",
+      ).length,
+    };
+  }, [events]);
 
   if (!ready) {
     return (
@@ -161,7 +187,9 @@ export default function ActivityPage() {
               </div>
 
               <div className="stat">
-                <strong>{totals.worlds}</strong>
+                <strong>
+                  {totals.worlds}
+                </strong>
                 <span>{t.worlds}</span>
               </div>
             </div>
@@ -171,35 +199,62 @@ export default function ActivityPage() {
                 {t.sessions}
               </p>
 
-              {sessions.length === 0 ? (
+              {events.length === 0 ? (
                 <section className="privacy-card card">
                   <strong>
                     {t.noActivity}
                   </strong>
                   <span>
-                    {t.sessionHint(child.name)}
+                    {t.sessionHint(
+                      child.name,
+                    )}
                   </span>
                 </section>
               ) : (
-                sessions.map((session) => (
+                events.map((event) => (
                   <div
                     className="session-row"
-                    key={session.id}
+                    key={event.id}
                   >
                     <span
                       className="session-dot"
                       style={{
                         background:
-                          session.color ??
-                          "#6d4aff",
+                          event.success === false
+                            ? "#ff6961"
+                            : "#6d4aff",
                       }}
                     />
 
                     <div className="session-copy">
                       <strong>
-                        {session.title}
+                        {activityTitle(
+                          event,
+                          language,
+                        )}
                       </strong>
-                      <span>{session.meta}</span>
+
+                      <span>
+                        {new Intl.DateTimeFormat(
+                          language === "pt"
+                            ? "pt-PT"
+                            : language === "es"
+                              ? "es-ES"
+                              : language === "de"
+                                ? "de-DE"
+                                : "en-GB",
+                          {
+                            dateStyle:
+                              "medium",
+                            timeStyle:
+                              "short",
+                          },
+                        ).format(
+                          new Date(
+                            event.createdAt,
+                          ),
+                        )}
+                      </span>
                     </div>
                   </div>
                 ))
