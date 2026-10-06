@@ -7,6 +7,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { Brand } from "./ui";
 import { Mascot } from "./mascot";
 import { getDeviceIdentity } from "@/lib/services/pairing-service";
+import { getActiveChildProfile } from "@/lib/services/local-state";
 import { useLiioLanguage } from "./use-liio-language";
 
 type ChatMessage = {
@@ -22,8 +23,6 @@ type ActiveChildProfile = {
   age: number;
   pairedAt: string;
 };
-
-const ACTIVE_CHILD_KEY = "liio-active-child-profile";
 
 const copy = liioCopy.homework;
 
@@ -59,10 +58,9 @@ export function HomeworkChat() {
     let childAge = 9;
 
     try {
-      const storedProfile = window.localStorage.getItem(ACTIVE_CHILD_KEY);
+      const parsedProfile = getActiveChildProfile();
 
-      if (storedProfile) {
-        const parsedProfile = JSON.parse(storedProfile) as ActiveChildProfile;
+      if (parsedProfile) {
 
         childName = parsedProfile.name?.trim() || childName;
         childAge =
