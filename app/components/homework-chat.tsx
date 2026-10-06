@@ -143,7 +143,7 @@ export function HomeworkChat() {
       if (!response.ok || !data.message?.content) {
         throw new Error(
           data.error?.message ||
-            "Liio could not answer right now.",
+            "liio could not answer right now.",
         );
       }
 
@@ -166,7 +166,7 @@ export function HomeworkChat() {
       setError(
         requestError instanceof Error
           ? requestError.message
-          : "Liio needs a moment. Please try again.",
+          : "liio needs a moment. Please try again.",
       );
     } finally {
       if (controllerRef.current === controller) {
@@ -305,7 +305,7 @@ export function HomeworkChat() {
 
             <div
               className="chat-bubble thinking-bubble"
-              aria-label="Liio is thinking"
+              aria-label="liio is thinking"
             >
               <span />
               <span />
@@ -370,7 +370,7 @@ export function HomeworkChat() {
         </div>
 
         <p>
-          Liio will guide you one step at a time.
+          liio will guide you one step at a time.
         </p>
       </form>
     </main>
