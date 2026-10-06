@@ -1,0 +1,132 @@
+.shell {
+  background: #fbfaf8;
+}
+
+.page {
+  min-height: 100svh;
+  padding:
+    max(30px, env(safe-area-inset-top))
+    20px
+    max(34px, env(safe-area-inset-bottom));
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.heading {
+  margin: 72px 0 8px;
+  color: #191426;
+  font-family: var(--font-fredoka), var(--font-inter), sans-serif;
+  font-size: 36px;
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.7px;
+  text-align: center;
+}
+
+.subheading {
+  margin: 0 0 34px;
+  color: #645b6e;
+  font-size: 16px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.authList {
+  display: grid;
+  gap: 14px;
+}
+
+.authButton {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) 48px;
+  width: 100%;
+  min-height: 72px;
+  align-items: center;
+  padding: 0 18px;
+
+  color: #17131f;
+  border: 1.3px solid #d2d0cc;
+  border-radius: 20px;
+  background: #ffffff;
+
+  box-shadow:
+    0 2px 3px rgb(25 20 38 / 4%),
+    0 7px 12px rgb(25 20 38 / 8%);
+
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.authButton:active {
+  transform: scale(0.985);
+
+  box-shadow:
+    0 1px 2px rgb(25 20 38 / 4%),
+    0 4px 8px rgb(25 20 38 / 6%);
+}
+
+.iconSlot {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: flex-start;
+  color: #111111;
+}
+
+.balanceSlot {
+  width: 48px;
+  height: 48px;
+}
+
+.label {
+  overflow: hidden;
+
+  font-family: var(--font-inter), Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.15px;
+
+  text-align: center;
+  white-space: nowrap;
+}
+
+.appleIcon {
+  width: 31px;
+  height: 31px;
+  color: #050505;
+}
+
+.googleIcon {
+  width: 30px;
+  height: 30px;
+}
+
+.createFamily {
+  display: block;
+  width: max-content;
+  margin: 74px auto 0;
+
+  color: var(--purple);
+  font-size: 15px;
+  font-weight: 600;
+
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+@media (max-height: 700px) {
+  .heading {
+    margin-top: 35px;
+  }
+
+  .createFamily {
+    margin-top: 38px;
+  }
+}
