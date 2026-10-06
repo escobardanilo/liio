@@ -46,35 +46,80 @@ export async function ensureFamilyIdentity(
   language: LiioLanguage,
 ): Promise<FamilyIdentity> {
   const existing = getLocalFamilyIdentity();
+  const supabase = getLiioSupabaseBrowserClient();
 
-  if (existing) {
+  if (existing?.mode === "remote") {
     return existing;
   }
 
-  const supabase = getLiioSupabaseBrowserClient();
-  const ownerSecret = createOpaqueSecret();
+  const ownerSecret =
+    existing?.ownerSecret ?? createOpaqueSecret();
 
   if (supabase) {
-    const { data, error } = await supabase.rpc("liio_create_family", {
-      p_owner_secret: ownerSecret,
-      p_parent_name: parent.name,
-      p_language: language,
-    });
+    const { data, error } = await supabase.rpc(
+      "liio_create_family",
+      {
+        p_owner_secret: ownerSecret,
+        p_parent_name: parent.name,
+        p_language: language,
+      },
+    );
 
     if (!error && typeof data === "string") {
-      const identity = {
+      const identity: FamilyIdentity = {
         familyId: data,
         ownerSecret,
+        mode: "remote",
       };
 
       writeJson(FAMILY_KEY, identity);
+
+      const localChildren = getLocalChildren();
+
+      for (const child of localChildren) {
+        await supabase.rpc("liio_upsert_child", {
+          p_family_id: identity.familyId,
+          p_owner_secret: identity.ownerSecret,
+          p_child_id: null,
+          p_name: child.name,
+          p_age: child.age,
+        });
+      }
+
+      const { data: remoteChildren } =
+        await supabase.rpc(
+          "liio_list_children_owner",
+          {
+            p_family_id: identity.familyId,
+            p_owner_secret:
+              identity.ownerSecret,
+          },
+        );
+
+      if (Array.isArray(remoteChildren)) {
+        saveLocalChildren(
+          remoteChildren as ChildProfile[],
+        );
+      }
+
       return identity;
     }
   }
 
-  const fallbackIdentity = {
+  if (existing) {
+    const localIdentity: FamilyIdentity = {
+      ...existing,
+      mode: "local",
+    };
+
+    writeJson(FAMILY_KEY, localIdentity);
+    return localIdentity;
+  }
+
+  const fallbackIdentity: FamilyIdentity = {
     familyId: crypto.randomUUID(),
     ownerSecret,
+    mode: "local",
   };
 
   writeJson(FAMILY_KEY, fallbackIdentity);
