@@ -1,0 +1,33 @@
+revoke all on function public.liio_hash(text) from public, anon, authenticated;
+revoke all on function public.liio_owner_matches(uuid, text) from public, anon, authenticated;
+revoke all on function public.liio_random_code() from public, anon, authenticated;
+
+revoke all on function public.liio_create_family(text, text, text) from public;
+revoke all on function public.liio_list_children_owner(uuid, text) from public;
+revoke all on function public.liio_upsert_child(uuid, text, uuid, text, integer) from public;
+revoke all on function public.liio_delete_child(uuid, text, uuid) from public;
+revoke all on function public.liio_create_pairing_code(uuid, text) from public;
+revoke all on function public.liio_pairing_children(text) from public;
+revoke all on function public.liio_activate_device(text, uuid, text) from public;
+revoke all on function public.liio_device_child(text) from public;
+revoke all on function public.liio_start_learning_session(text, text, text) from public;
+revoke all on function public.liio_log_activity(text, uuid, text, text, integer, boolean, text, jsonb) from public;
+revoke all on function public.liio_set_language(uuid, text, text) from public;
+revoke all on function public.liio_get_time_limits(uuid, text, uuid) from public;
+revoke all on function public.liio_update_time_limits(uuid, text, uuid, integer, time, time, boolean, boolean, boolean, boolean) from public;
+revoke all on function public.liio_list_activity_owner(uuid, text, uuid, integer) from public;
+
+grant execute on function public.liio_create_family(text, text, text) to anon, authenticated;
+grant execute on function public.liio_list_children_owner(uuid, text) to anon, authenticated;
+grant execute on function public.liio_upsert_child(uuid, text, uuid, text, integer) to anon, authenticated;
+grant execute on function public.liio_delete_child(uuid, text, uuid) to anon, authenticated;
+grant execute on function public.liio_create_pairing_code(uuid, text) to anon, authenticated;
+grant execute on function public.liio_pairing_children(text) to anon, authenticated;
+grant execute on function public.liio_activate_device(text, uuid, text) to anon, authenticated;
+grant execute on function public.liio_device_child(text) to anon, authenticated;
+grant execute on function public.liio_start_learning_session(text, text, text) to anon, authenticated;
+grant execute on function public.liio_log_activity(text, uuid, text, text, integer, boolean, text, jsonb) to anon, authenticated;
+grant execute on function public.liio_set_language(uuid, text, text) to anon, authenticated;
+grant execute on function public.liio_get_time_limits(uuid, text, uuid) to anon, authenticated;
+grant execute on function public.liio_update_time_limits(uuid, text, uuid, integer, time, time, boolean, boolean, boolean, boolean) to anon, authenticated;
+grant execute on function public.liio_list_activity_owner(uuid, text, uuid, integer) to anon, authenticated;
