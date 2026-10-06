@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { KeyRound } from "lucide-react";
+import { KeyRound, UserRound } from "lucide-react";
 import {
   decodePairingCode,
   normalizePairingCode,
@@ -10,23 +10,23 @@ import {
 import { BackButton, Brand, MobileShell } from "../components/ui";
 import styles from "./page.module.css";
 
-type CodeMap = Record<
-  string,
-  {
-    childId: string;
-    childName: string;
-    age: number;
-  }
->;
+type ChildProfile = {
+  id: string;
+  name: string;
+  age: number;
+};
 
-const CODE_MAP_KEY = "liio-device-code-map";
+const CHILDREN_KEY = "liio-parent-child-profiles";
 const ACTIVE_CHILD_KEY = "liio-active-child-profile";
+const SELECTED_CHILD_KEY = "liio-selected-child-id";
 
 export default function EnterLiioPage() {
   const router = useRouter();
 
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
+  const [children, setChildren] = useState<ChildProfile[]>([]);
+  const [step, setStep] = useState<"code" | "profile">("code");
 
   function handleChange(value: string) {
     const normalized = normalizePairingCode(value);
@@ -49,25 +49,35 @@ export default function EnterLiioPage() {
       return;
     }
 
-    const normalized = normalizePairingCode(code);
-    let mappedProfile: CodeMap[string] | undefined;
-
     try {
-      const storedMap = window.localStorage.getItem(CODE_MAP_KEY);
+      const storedChildren = window.localStorage.getItem(CHILDREN_KEY);
 
-      if (storedMap) {
-        const codeMap = JSON.parse(storedMap) as CodeMap;
-        mappedProfile = codeMap[normalized];
+      if (!storedChildren) {
+        setError("No child profiles are available for this family.");
+        return;
       }
-    } catch {
-      mappedProfile = undefined;
-    }
 
+      const parsedChildren = JSON.parse(storedChildren) as ChildProfile[];
+
+      if (!Array.isArray(parsedChildren) || parsedChildren.length === 0) {
+        setError("No child profiles are available for this family.");
+        return;
+      }
+
+      setChildren(parsedChildren);
+      setStep("profile");
+      setError("");
+    } catch {
+      setError("Liio could not load the family profiles.");
+    }
+  }
+
+  function chooseChild(child: ChildProfile) {
     const activeProfile = {
-      childId: mappedProfile?.childId ?? null,
-      name: mappedProfile?.childName ?? null,
-      initial: decoded.initial,
-      age: mappedProfile?.age ?? decoded.age,
+      childId: child.id,
+      name: child.name,
+      initial: child.name.charAt(0).toUpperCase(),
+      age: child.age,
       pairedAt: new Date().toISOString(),
     };
 
@@ -76,12 +86,10 @@ export default function EnterLiioPage() {
       JSON.stringify(activeProfile),
     );
 
-    if (mappedProfile?.childId) {
-      window.localStorage.setItem(
-        "liio-selected-child-id",
-        mappedProfile.childId,
-      );
-    }
+    window.localStorage.setItem(
+      SELECTED_CHILD_KEY,
+      child.id,
+    );
 
     router.push("/homework");
   }
@@ -95,49 +103,97 @@ export default function EnterLiioPage() {
         </div>
 
         <div className={styles.content}>
-          <div className={styles.icon}>
-            <KeyRound size={34} strokeWidth={2} />
-          </div>
+          {step === "code" ? (
+            <>
+              <div className={styles.icon}>
+                <KeyRound size={34} strokeWidth={2} />
+              </div>
 
-          <h1>Enter LIIO</h1>
+              <h1>Enter LIIO</h1>
 
-          <p>
-            Ask a parent or family member for the code generated in
-            <strong> Devices &amp; codes</strong>.
-          </p>
-
-          <form className={styles.form} onSubmit={handleSubmit}>
-            <label htmlFor="liio-code">Device code</label>
-
-            <input
-              id="liio-code"
-              value={code}
-              autoFocus
-              autoComplete="off"
-              inputMode="text"
-              maxLength={7}
-              placeholder="ABC-123"
-              onChange={(event) => handleChange(event.target.value)}
-            />
-
-            {error ? (
-              <p className={styles.error} role="alert">
-                {error}
+              <p>
+                Ask a parent or family member for the code generated in
+                <strong> Devices &amp; codes</strong>.
               </p>
-            ) : (
-              <p className={styles.helper}>
-                Codes are temporary and expire after 10 minutes.
-              </p>
-            )}
 
-            <button
-              className={styles.continueButton}
-              type="submit"
-              disabled={normalizePairingCode(code).length !== 6}
-            >
-              Continue
-            </button>
-          </form>
+              <form className={styles.form} onSubmit={handleSubmit}>
+                <label htmlFor="liio-code">Device code</label>
+
+                <input
+                  id="liio-code"
+                  value={code}
+                  autoFocus
+                  autoComplete="off"
+                  inputMode="text"
+                  maxLength={7}
+                  placeholder="ABC-123"
+                  onChange={(event) => handleChange(event.target.value)}
+                />
+
+                {error ? (
+                  <p className={styles.error} role="alert">
+                    {error}
+                  </p>
+                ) : (
+                  <p className={styles.helper}>
+                    Codes are temporary and expire after 10 minutes.
+                  </p>
+                )}
+
+                <button
+                  className={styles.continueButton}
+                  type="submit"
+                  disabled={normalizePairingCode(code).length !== 6}
+                >
+                  Continue
+                </button>
+              </form>
+            </>
+          ) : (
+            <>
+              <div className={styles.icon}>
+                <UserRound size={34} strokeWidth={2} />
+              </div>
+
+              <h1>Who&apos;s using LIIO?</h1>
+
+              <p>
+                Choose the child profile that will use Liio on this device.
+              </p>
+
+              <div className={styles.profileList}>
+                {children.map((child) => (
+                  <button
+                    key={child.id}
+                    className={styles.profileCard}
+                    type="button"
+                    onClick={() => chooseChild(child)}
+                  >
+                    <span className={styles.avatar}>
+                      {child.name.charAt(0).toUpperCase()}
+                    </span>
+
+                    <span className={styles.profileCopy}>
+                      <strong>{child.name}</strong>
+                      <small>{child.age} years old</small>
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              <button
+                className={styles.changeCodeButton}
+                type="button"
+                onClick={() => {
+                  setStep("code");
+                  setCode("");
+                  setError("");
+                }}
+              >
+                Use another code
+              </button>
+            </>
+          )}
         </div>
       </section>
     </MobileShell>
