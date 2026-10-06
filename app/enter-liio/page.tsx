@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { liioCopy } from "@/lib/i18n/catalog";
 import { useRouter } from "next/navigation";
 import { KeyRound, UserRound } from "lucide-react";
 import {
@@ -23,68 +24,8 @@ type ChildProfile = {
 const ACTIVE_CHILD_KEY = "liio-active-child-profile";
 const SELECTED_CHILD_KEY = "liio-selected-child-id";
 
-const copy = {
-  en: {
-    enterTitle: "Enter liio",
-    instruction:
-      "Ask a parent or family member for the code generated in Devices & codes.",
-    deviceCode: "Device code",
-    expires: "Codes are temporary and expire after 10 minutes.",
-    continue: "Continue",
-    invalid: "This code is invalid or has expired.",
-    noProfiles: "No child profiles are available for this family.",
-    loadError: "liio could not load the family profiles.",
-    who: "Who's using liio?",
-    choose: "Choose the child profile that will use liio on this device.",
-    years: "years old",
-    otherCode: "Use another code",
-  },
-  pt: {
-    enterTitle: "Entrar no liio",
-    instruction:
-      "Pede ao responsável o código gerado em Dispositivos e códigos.",
-    deviceCode: "Código do dispositivo",
-    expires: "Os códigos são temporários e expiram após 10 minutos.",
-    continue: "Continuar",
-    invalid: "Este código é inválido ou expirou.",
-    noProfiles: "Não existem perfis de crianças disponíveis nesta família.",
-    loadError: "liio não conseguiu carregar os perfis da família.",
-    who: "Quem vai usar o liio?",
-    choose: "Escolhe o perfil da criança que vai usar o liio neste dispositivo.",
-    years: "anos",
-    otherCode: "Usar outro código",
-  },
-  es: {
-    enterTitle: "Entrar en liio",
-    instruction:
-      "Pide a un responsable el código generado en Dispositivos y códigos.",
-    deviceCode: "Código del dispositivo",
-    expires: "Los códigos son temporales y caducan después de 10 minutos.",
-    continue: "Continuar",
-    invalid: "Este código no es válido o ha caducado.",
-    noProfiles: "No hay perfiles infantiles disponibles para esta familia.",
-    loadError: "liio no pudo cargar los perfiles de la familia.",
-    who: "¿Quién va a usar liio?",
-    choose: "Elige el perfil del niño que usará liio en este dispositivo.",
-    years: "años",
-    otherCode: "Usar otro código",
-  },
-  de: {
-    enterTitle: "liio betreten",
-    instruction:
-      "Bitte eine erziehungsberechtigte Person um den Code aus Geräte & Codes.",
-    deviceCode: "Gerätecode",
-    expires: "Codes sind temporär und laufen nach 10 Minuten ab.",
-    continue: "Weiter",
-    invalid: "Dieser Code ist ungültig oder abgelaufen.",
-    noProfiles: "Für diese Familie sind keine Kinderprofile verfügbar.",
-    loadError: "liio konnte die Familienprofile nicht laden.",
-    who: "Wer benutzt liio?",
-    choose: "Wähle das Kinderprofil aus, das liio auf diesem Gerät verwendet.",
-    years: "Jahre alt",
-    otherCode: "Anderen Code verwenden",
-  },
-} as const;
+const copy = liioCopy.enter;
+
 
 export default function EnterLiioPage() {
   const router = useRouter();
