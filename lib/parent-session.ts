@@ -1,6 +1,6 @@
 const SESSION_COOKIE = "liio_parent_session";
-const SIGNED_OUT_KEY = "liio-parent-signed-out";
 const LEGACY_SESSION_KEY = "liio-parent-session";
+const SESSION_MIGRATION_KEY = "liio-parent-session-v2-migrated";
 
 function hasCookie(name: string, value: string) {
   return document.cookie
@@ -13,7 +13,7 @@ export function startParentSession() {
   document.cookie =
     `${SESSION_COOKIE}=active; Path=/; SameSite=Lax`;
 
-  window.localStorage.removeItem(SIGNED_OUT_KEY);
+  window.localStorage.setItem(SESSION_MIGRATION_KEY, "true");
   window.localStorage.removeItem(LEGACY_SESSION_KEY);
   window.sessionStorage.removeItem(LEGACY_SESSION_KEY);
 }
@@ -22,7 +22,6 @@ export function endParentSession() {
   document.cookie =
     `${SESSION_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
 
-  window.localStorage.setItem(SIGNED_OUT_KEY, "true");
   window.localStorage.removeItem(LEGACY_SESSION_KEY);
   window.sessionStorage.removeItem(LEGACY_SESSION_KEY);
 }
@@ -55,10 +54,10 @@ export function restoreParentSessionIfAllowed(hasProfile: boolean) {
     return false;
   }
 
-  const explicitlySignedOut =
-    window.localStorage.getItem(SIGNED_OUT_KEY) === "true";
+  const migrationAlreadyApplied =
+    window.localStorage.getItem(SESSION_MIGRATION_KEY) === "true";
 
-  if (explicitlySignedOut) {
+  if (migrationAlreadyApplied) {
     return false;
   }
 
