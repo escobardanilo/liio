@@ -3,12 +3,22 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Mascot } from "./mascot";
+import { useLiioLanguage } from "./use-liio-language";
 
 type Shot = { id: number; x: number; y: number; vx: number; vy: number; side: boolean };
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
+const gameCopy = {
+  en: { gameOver: "Game over", score: "Your score", restart: "Restart", enter: "Enter" },
+  pt: { gameOver: "Fim de jogo", score: "A tua pontuação", restart: "Recomeçar", enter: "Entrar" },
+  es: { gameOver: "Fin del juego", score: "Tu puntuación", restart: "Reiniciar", enter: "Entrar" },
+  de: { gameOver: "Spiel vorbei", score: "Deine Punktzahl", restart: "Neu starten", enter: "Zurück" },
+} as const;
+
 export function SpaceGame() {
   const router = useRouter();
+  const { language } = useLiioLanguage();
+  const t = gameCopy[language];
   const gameRef = useRef<HTMLDivElement>(null), playerRef = useRef({ x: 50, y: 79 }), shotsRef = useRef<Shot[]>([]);
   const deadRef = useRef(false), startRef = useRef(0), spawnRef = useRef(0), lastRef = useRef(0), shotId = useRef(0), spawnCount = useRef(0);
   const [player, setPlayer] = useState({ x: 50, y: 79 }), [shots, setShots] = useState<Shot[]>([]), [score, setScore] = useState(0), [dead, setDead] = useState(false);
@@ -64,6 +74,6 @@ export function SpaceGame() {
     <span className="game__ship" style={{ left: "22%" }} /><span className="game__ship" style={{ right: "18%", top: 112 }} />
     {shots.map(shot => <span key={shot.id} className={`shot ${shot.side ? "shot--side" : ""}`} style={{ left: `${shot.x}%`, top: `${shot.y}%` }} />)}
     <div className="game__player" style={{ left: `${player.x}%`, top: `${player.y}%` }}><Mascot width={62} height={54} idle={false} color="#ffffff" /></div>
-    {dead && <div className="game-over-backdrop"><section className="game-over" aria-live="assertive"><h1>Game over</h1><p className="game-over__score">Your score<strong>{score}</strong></p><div className="game-over__actions" onPointerDown={event => event.stopPropagation()}><button className="primary-button" onClick={restart}>Restart</button><button className="secondary-button" onClick={() => router.push("/home-01")}>Enter</button></div></section></div>}
+    {dead && <div className="game-over-backdrop"><section className="game-over" aria-live="assertive"><h1>{t.gameOver}</h1><p className="game-over__score">{t.score}<strong>{score}</strong></p><div className="game-over__actions" onPointerDown={event => event.stopPropagation()}><button className="primary-button" onClick={restart}>{t.restart}</button><button className="secondary-button" onClick={() => router.push("/home-01")}>{t.enter}</button></div></section></div>}
   </main>;
 }
