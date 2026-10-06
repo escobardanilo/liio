@@ -34,17 +34,6 @@
   text-transform: uppercase;
 }
 
-.headerAdd {
-  display: grid;
-  width: 46px;
-  height: 46px;
-  place-items: center;
-  color: #ffffff;
-  border-radius: 16px;
-  background: #6d4aff;
-  cursor: pointer;
-}
-
 .emptyState {
   display: flex;
   min-height: 530px;
@@ -253,32 +242,68 @@
   color: #d55353;
 }
 
-.futureSection {
+.manageSection {
   margin-top: 31px;
 }
 
-.futureCard {
+.manageList {
   margin-top: 13px;
-  padding: 20px;
-  border: 1.5px dashed #dcd5cb;
-  border-radius: 22px;
+  overflow: hidden;
+  border: 1.5px solid #e4ded5;
+  border-radius: 24px;
+  background: #ffffff;
 }
 
-.futureCard strong,
-.futureCard span {
+.manageRow {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) 24px;
+  min-height: 76px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee8df;
+}
+
+.manageRow:last-child {
+  border-bottom: 0;
+}
+
+.manageRow:active {
+  background: #faf7f2;
+}
+
+.manageIcon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: #6d4aff;
+  border-radius: 14px;
+  background: #f0eaff;
+}
+
+.manageCopy {
+  min-width: 0;
+}
+
+.manageCopy strong,
+.manageCopy small {
   display: block;
 }
 
-.futureCard strong {
+.manageCopy strong {
   color: #191426;
   font-size: 15px;
 }
 
-.futureCard span {
-  margin-top: 7px;
+.manageCopy small {
+  margin-top: 4px;
   color: #746c7c;
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 12px;
+}
+
+.manageRow > svg {
+  color: #746c7c;
 }
 
 .modalBackdrop {
