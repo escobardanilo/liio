@@ -42,7 +42,7 @@ const copy = {
   },
   pt: {
     mode: "Tarefas",
-    welcome: (name: string) => `Olá ${name}, no que queres trabalhar hoje?`,
+    welcome: (name: string) => `Olá, ${name}! O que queres estudar hoje?`,
     fractions: "Ajuda com frações",
     fractionsPrompt: "Estou com dificuldade numa questão de frações.",
     equation: "Orientar uma equação",
