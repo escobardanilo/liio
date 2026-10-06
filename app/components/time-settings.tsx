@@ -2,6 +2,7 @@
 
 import { Minus, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLiioLanguage } from "./use-liio-language";
 
 type Settings = {
   minutes: number;
@@ -23,20 +24,97 @@ const defaultSettings: Settings = {
   paused: false,
 };
 
-export function TimeSettings({ childId }: { childId: string }) {
-  const storageKey = `liio-time-settings-${childId}`;
+const copy = {
+  en: {
+    daily: "Daily limit",
+    quiet: "Quiet hours",
+    canDo: "What liio can do",
+    homework: "Homework mode",
+    homeworkSub: "Guides step by step, never gives the answer",
+    voice: "Voice replies",
+    voiceSub: "liio can talk out loud",
+    create: "Create world",
+    createSub: "Stories, ideas and drawings",
+    pause: "Pause liio now",
+    resume: "Resume liio",
+    decrease: "Decrease daily limit",
+    increase: "Increase daily limit",
+  },
+  pt: {
+    daily: "Limite diário",
+    quiet: "Horário de descanso",
+    canDo: "O que o liio pode fazer",
+    homework: "Modo de tarefas",
+    homeworkSub: "Orienta passo a passo, sem dar a resposta",
+    voice: "Respostas por voz",
+    voiceSub: "liio pode responder em voz alta",
+    create: "Criar mundo",
+    createSub: "Histórias, ideias e desenhos",
+    pause: "Pausar liio agora",
+    resume: "Retomar liio",
+    decrease: "Diminuir limite diário",
+    increase: "Aumentar limite diário",
+  },
+  es: {
+    daily: "Límite diario",
+    quiet: "Horas de descanso",
+    canDo: "Lo que liio puede hacer",
+    homework: "Modo tareas",
+    homeworkSub: "Guía paso a paso, sin dar la respuesta",
+    voice: "Respuestas por voz",
+    voiceSub: "liio puede responder en voz alta",
+    create: "Crear mundo",
+    createSub: "Historias, ideas y dibujos",
+    pause: "Pausar liio ahora",
+    resume: "Reanudar liio",
+    decrease: "Reducir límite diario",
+    increase: "Aumentar límite diario",
+  },
+  de: {
+    daily: "Tageslimit",
+    quiet: "Ruhezeiten",
+    canDo: "Was liio kann",
+    homework: "Hausaufgabenmodus",
+    homeworkSub: "Führt Schritt für Schritt, ohne die Antwort zu geben",
+    voice: "Sprachantworten",
+    voiceSub: "liio kann laut antworten",
+    create: "Welt erstellen",
+    createSub: "Geschichten, Ideen und Zeichnungen",
+    pause: "liio jetzt pausieren",
+    resume: "liio fortsetzen",
+    decrease: "Tageslimit verringern",
+    increase: "Tageslimit erhöhen",
+  },
+} as const;
 
-  const [settings, setSettings] = useState<Settings>(defaultSettings);
-  const [ready, setReady] = useState(false);
+export function TimeSettings({
+  childId,
+}: {
+  childId: string;
+}) {
+  const { language } = useLiioLanguage();
+  const t = copy[language];
+
+  const storageKey =
+    `liio-time-settings-${childId}`;
+
+  const [settings, setSettings] =
+    useState<Settings>(defaultSettings);
+
+  const [ready, setReady] =
+    useState(false);
 
   useEffect(() => {
     try {
-      const stored = window.localStorage.getItem(storageKey);
+      const stored =
+        window.localStorage.getItem(storageKey);
 
       if (stored) {
         setSettings({
           ...defaultSettings,
-          ...(JSON.parse(stored) as Partial<Settings>),
+          ...(JSON.parse(
+            stored,
+          ) as Partial<Settings>),
         });
       }
     } catch {
@@ -46,14 +124,19 @@ export function TimeSettings({ childId }: { childId: string }) {
     }
   }, [storageKey]);
 
-  function updateSettings(patch: Partial<Settings>) {
+  function updateSettings(
+    patch: Partial<Settings>,
+  ) {
     setSettings((current) => {
       const next = {
         ...current,
         ...patch,
       };
 
-      window.localStorage.setItem(storageKey, JSON.stringify(next));
+      window.localStorage.setItem(
+        storageKey,
+        JSON.stringify(next),
+      );
 
       return next;
     });
@@ -67,7 +150,7 @@ export function TimeSettings({ childId }: { childId: string }) {
     <>
       <div className="setting-card">
         <div className="setting-card__copy">
-          <strong>Daily limit</strong>
+          <strong>{t.daily}</strong>
           <span>{settings.minutes} min</span>
         </div>
 
@@ -76,10 +159,13 @@ export function TimeSettings({ childId }: { childId: string }) {
             type="button"
             onClick={() =>
               updateSettings({
-                minutes: Math.max(15, settings.minutes - 15),
+                minutes: Math.max(
+                  15,
+                  settings.minutes - 15,
+                ),
               })
             }
-            aria-label="Decrease daily limit"
+            aria-label={t.decrease}
           >
             <Minus size={25} />
           </button>
@@ -88,10 +174,13 @@ export function TimeSettings({ childId }: { childId: string }) {
             type="button"
             onClick={() =>
               updateSettings({
-                minutes: Math.min(180, settings.minutes + 15),
+                minutes: Math.min(
+                  180,
+                  settings.minutes + 15,
+                ),
               })
             }
-            aria-label="Increase daily limit"
+            aria-label={t.increase}
           >
             <Plus size={28} />
           </button>
@@ -107,9 +196,16 @@ export function TimeSettings({ childId }: { childId: string }) {
         }}
       >
         <div className="setting-card__copy">
-          <strong>Quiet hours</strong>
-          <span style={{ fontSize: 16, marginTop: 8 }}>
-            {settings.quietStart} – {settings.quietEnd}
+          <strong>{t.quiet}</strong>
+
+          <span
+            style={{
+              fontSize: 16,
+              marginTop: 8,
+            }}
+          >
+            {settings.quietStart} –{" "}
+            {settings.quietEnd}
           </span>
         </div>
 
@@ -123,17 +219,19 @@ export function TimeSettings({ childId }: { childId: string }) {
           <input
             type="time"
             value={settings.quietStart}
-            aria-label="Quiet hours start"
+            aria-label={t.quiet}
             onChange={(event) =>
               updateSettings({
-                quietStart: event.target.value,
+                quietStart:
+                  event.target.value,
               })
             }
             style={{
               width: "100%",
               height: 38,
               padding: "0 8px",
-              border: "1.5px solid #e8e1d7",
+              border:
+                "1.5px solid #e8e1d7",
               borderRadius: 11,
               background: "#fff",
               color: "#191426",
@@ -143,17 +241,19 @@ export function TimeSettings({ childId }: { childId: string }) {
           <input
             type="time"
             value={settings.quietEnd}
-            aria-label="Quiet hours end"
+            aria-label={t.quiet}
             onChange={(event) =>
               updateSettings({
-                quietEnd: event.target.value,
+                quietEnd:
+                  event.target.value,
               })
             }
             style={{
               width: "100%",
               height: 38,
               padding: "0 8px",
-              border: "1.5px solid #e8e1d7",
+              border:
+                "1.5px solid #e8e1d7",
               borderRadius: 11,
               background: "#fff",
               color: "#191426",
@@ -163,11 +263,13 @@ export function TimeSettings({ childId }: { childId: string }) {
       </div>
 
       <section className="settings-list">
-        <p className="section-label">What liio can do</p>
+        <p className="section-label">
+          {t.canDo}
+        </p>
 
         <ToggleRow
-          title="Homework mode"
-          description="Guides step by step, never gives the answer"
+          title={t.homework}
+          description={t.homeworkSub}
           value={settings.homework}
           onChange={(value) =>
             updateSettings({
@@ -177,8 +279,8 @@ export function TimeSettings({ childId }: { childId: string }) {
         />
 
         <ToggleRow
-          title="Voice replies"
-          description="liio can talk out loud"
+          title={t.voice}
+          description={t.voiceSub}
           value={settings.voice}
           onChange={(value) =>
             updateSettings({
@@ -188,8 +290,8 @@ export function TimeSettings({ childId }: { childId: string }) {
         />
 
         <ToggleRow
-          title="Create world"
-          description="Stories, ideas and drawings"
+          title={t.create}
+          description={t.createSub}
           value={settings.createWorld}
           onChange={(value) =>
             updateSettings({
@@ -208,7 +310,9 @@ export function TimeSettings({ childId }: { childId: string }) {
           })
         }
       >
-        {settings.paused ? "Resume liio" : "Pause liio now"}
+        {settings.paused
+          ? t.resume
+          : t.pause}
       </button>
     </>
   );
@@ -233,7 +337,9 @@ function ToggleRow({
       </div>
 
       <button
-        className={`toggle ${value ? "toggle--on" : ""}`}
+        className={`toggle ${
+          value ? "toggle--on" : ""
+        }`}
         type="button"
         role="switch"
         aria-checked={value}
