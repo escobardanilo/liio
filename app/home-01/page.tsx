@@ -2,90 +2,12 @@
 
 import Link from "next/link";
 import { ChevronRight, LockKeyhole } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Mascot } from "../components/mascot";
+import { useLiioLanguage, liioLanguages } from "../components/use-liio-language";
 import { MobileShell } from "../components/ui";
 import styles from "./page.module.css";
 
-type Language = "pt" | "en" | "es" | "de";
-
-const LANGUAGE_STORAGE_KEY = "liio-ui-language";
-
-const copy: Record<
-  Language,
-  {
-    question: string;
-    childTitle: string;
-    childText: string;
-    parentTitle: string;
-    parentText: string;
-  }
-> = {
-  pt: {
-    question: "Quem vai entrar?",
-    childTitle: "Entrar no liio",
-    childText: "Para crianças e adolescentes",
-    parentTitle: "Área dos responsáveis",
-    parentText: "Gerir perfis, permissões e segurança",
-  },
-  en: {
-    question: "Who is signing in?",
-    childTitle: "Enter liio",
-    childText: "For children and teens",
-    parentTitle: "Parents Area",
-    parentText: "Manage profiles, permissions and security",
-  },
-  es: {
-    question: "¿Quién va a entrar?",
-    childTitle: "Entrar en liio",
-    childText: "Para niños y adolescentes",
-    parentTitle: "Área de responsables",
-    parentText: "Gestionar perfiles, permisos y seguridad",
-  },
-  de: {
-    question: "Wer meldet sich an?",
-    childTitle: "liio betreten",
-    childText: "Für Kinder und Jugendliche",
-    parentTitle: "Bereich für Eltern",
-    parentText: "Profile, Berechtigungen und Sicherheit verwalten",
-  },
-};
-
-const languages: Language[] = ["pt", "en", "es", "de"];
-
 export default function EntryPage() {
-  const [language, setLanguage] = useState<Language>("en");
-
-  useEffect(() => {
-    try {
-      const storedLanguage = window.localStorage.getItem(
-        LANGUAGE_STORAGE_KEY,
-      ) as Language | null;
-
-      if (
-        storedLanguage &&
-        languages.includes(storedLanguage)
-      ) {
-        setLanguage(storedLanguage);
-      }
-    } catch {
-      setLanguage("en");
-    }
-  }, []);
-
-  function handleLanguageChange(nextLanguage: Language) {
-    setLanguage(nextLanguage);
-
-    try {
-      window.localStorage.setItem(
-        LANGUAGE_STORAGE_KEY,
-        nextLanguage,
-      );
-    } catch {
-      // ignore prototype storage errors
-    }
-  }
-
+  const { language, setLanguage } = useLiioLanguage();
   const t = copy[language];
 
   return (
@@ -112,14 +34,14 @@ export default function EntryPage() {
             className={styles.languageSwitch}
             aria-label="Language selector"
           >
-            {languages.map((item) => (
+            {liioLanguages.map((item) => (
               <button
                 key={item}
                 type="button"
                 className={`${styles.languageButton} ${
                   language === item ? styles.languageButtonActive : ""
                 }`}
-                onClick={() => handleLanguageChange(item)}
+                onClick={() => setLanguage(item)}
               >
                 {item.toUpperCase()}
               </button>
@@ -137,11 +59,10 @@ export default function EntryPage() {
             href="/enter-liio"
           >
             <div className={styles.childIllustration} aria-hidden="true">
-              <Mascot
-                width={92}
-                height={80}
-                color="#ffffff"
-                interactive={false}
+              <img
+                className={styles.kidsImage}
+                src="/images/kids-liio.png"
+                alt=""
               />
             </div>
 
