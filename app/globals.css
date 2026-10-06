@@ -1,19 +1,5 @@
 @import "tailwindcss";
-
-:root {
-  --purple: #6d4aff;
-  --purple-deep: #6042f5;
-  --ink: #191426;
-  --warm: #fffbf4;
-  --muted: #645b6e;
-  --border: #e8e1d7;
-  --border-cool: #d8d4e0;
-  --yellow: #ffb224;
-  --teal: #13be91;
-  --blue: #3091ff;
-  --coral: #ff6961;
-  --drawer: #ededed;
-}
+@import "./design-tokens.css";
 
 * { box-sizing: border-box; }
 html { min-height: 100%; background: #e9e7e3; }
@@ -27,8 +13,18 @@ button, a { -webkit-tap-highlight-color: transparent; }
 a { color: inherit; text-decoration: none; }
 button { border: 0; }
 
+:where(button, a, input, textarea, select):focus-visible {
+  outline: 0;
+  box-shadow: var(--focus-ring);
+}
+
+:where(button, input, textarea, select):disabled {
+  cursor: not-allowed;
+  opacity: .52;
+}
+
 .app-shell {
-  position: relative; width: min(100%, 393px); min-height: 100svh;
+  position: relative; width: min(100%, var(--content-width)); min-height: 100svh;
   margin: 0 auto; overflow-x: clip; background: var(--warm);
 }
 .app-shell--fixed { height: 100svh; overflow: clip; }
@@ -346,4 +342,34 @@ button { border: 0; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+@media (min-width: 768px) {
+  body {
+    padding: 24px 0;
+  }
+
+  .app-shell {
+    min-height: calc(100svh - 48px);
+    border-radius: 28px;
+    box-shadow: var(--shadow-elevated);
+  }
+
+  .app-shell--fixed {
+    height: calc(100svh - 48px);
+  }
+
+  .drawer-backdrop {
+    top: 24px;
+    bottom: 24px;
+    height: calc(100svh - 48px);
+    border-radius: 28px;
+  }
+
+  .account-drawer {
+    top: 24px;
+    bottom: 24px;
+    left: calc(50% - 196.5px);
+    height: calc(100svh - 48px);
+  }
 }
