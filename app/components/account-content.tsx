@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { ChevronRight, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { endParentSession } from "@/lib/parent-session";
+import { useLiioLanguage } from "./use-liio-language";
 
 type AuthMethod = "apple" | "google" | "email" | "passkey" | "family";
 
@@ -26,21 +27,94 @@ const methodLabels: Record<AuthMethod, string> = {
   family: "Family profile",
 };
 
+const copy = {
+  en: {
+    account: "Account",
+    parent: "Parent",
+    prototypeAccount: "Prototype account",
+    plan: "Plan",
+    family: "liio Family",
+    planSub: "Prototype plan · No billing",
+    data: "Your child's data",
+    download: "Download everything",
+    delete: "Delete everything",
+    support: "Support",
+    help: "Help",
+    terms: "Terms & Privacy",
+    logout: "Log out",
+  },
+  pt: {
+    account: "Conta",
+    parent: "Responsável",
+    prototypeAccount: "Conta de protótipo",
+    plan: "Plano",
+    family: "Família liio",
+    planSub: "Plano de protótipo · Sem faturação",
+    data: "Dados da criança",
+    download: "Transferir tudo",
+    delete: "Eliminar tudo",
+    support: "Suporte",
+    help: "Ajuda",
+    terms: "Termos e Privacidade",
+    logout: "Terminar sessão",
+  },
+  es: {
+    account: "Cuenta",
+    parent: "Responsable",
+    prototypeAccount: "Cuenta de prototipo",
+    plan: "Plan",
+    family: "Familia liio",
+    planSub: "Plan de prototipo · Sin facturación",
+    data: "Datos del niño",
+    download: "Descargar todo",
+    delete: "Eliminar todo",
+    support: "Soporte",
+    help: "Ayuda",
+    terms: "Términos y Privacidad",
+    logout: "Cerrar sesión",
+  },
+  de: {
+    account: "Konto",
+    parent: "Elternteil",
+    prototypeAccount: "Prototypkonto",
+    plan: "Plan",
+    family: "liio Familie",
+    planSub: "Prototyp-Plan · Keine Abrechnung",
+    data: "Daten des Kindes",
+    download: "Alles herunterladen",
+    delete: "Alles löschen",
+    support: "Support",
+    help: "Hilfe",
+    terms: "Bedingungen & Datenschutz",
+    logout: "Abmelden",
+  },
+} as const;
+
 export function AccountContent({
   onClose,
 }: {
   onClose?: () => void;
 }) {
   const router = useRouter();
+  const { language } = useLiioLanguage();
+  const t = copy[language];
 
-  const [profile, setProfile] = useState<ParentProfile | null>(null);
+  const [profile, setProfile] =
+    useState<ParentProfile | null>(null);
 
   useEffect(() => {
     try {
-      const storedProfile = window.localStorage.getItem(PROFILE_STORAGE_KEY);
+      const storedProfile =
+        window.localStorage.getItem(
+          PROFILE_STORAGE_KEY,
+        );
 
       if (storedProfile) {
-        setProfile(JSON.parse(storedProfile) as ParentProfile);
+        setProfile(
+          JSON.parse(
+            storedProfile,
+          ) as ParentProfile,
+        );
       }
     } catch {
       setProfile(null);
@@ -88,7 +162,7 @@ export function AccountContent({
         </Link>
       )}
 
-      <h1>Account</h1>
+      <h1>{t.account}</h1>
 
       <div className="account-profile-card">
         <div className="account-avatar">
@@ -97,55 +171,68 @@ export function AccountContent({
 
         <div className="account-profile-card__copy">
           <strong>
-            {profile?.name ?? "Parent"}
+            {profile?.name ?? t.parent}
           </strong>
 
           <span>
             {profile
-              ? `${methodLabels[profile.method]} · Prototype account`
-              : "Prototype account"}
+              ? `${methodLabels[profile.method]} · ${t.prototypeAccount}`
+              : t.prototypeAccount}
           </span>
         </div>
       </div>
 
       <section className="account-section">
-        <p className="section-label">Plan</p>
+        <p className="section-label">
+          {t.plan}
+        </p>
 
         <div className="account-row">
           <div className="account-row__stack">
-            <strong>liio Family</strong>
-            <span>Prototype plan · No billing</span>
+            <strong>{t.family}</strong>
+            <span>{t.planSub}</span>
           </div>
         </div>
       </section>
 
       <section className="account-section">
         <p className="section-label">
-          Your child&apos;s data
+          {t.data}
         </p>
 
         <div className="account-row">
-          <strong>Download everything</strong>
-          <ChevronRight size={24} color="#645b6e" />
+          <strong>{t.download}</strong>
+          <ChevronRight
+            size={24}
+            color="#645b6e"
+          />
         </div>
 
         <div className="account-row account-row--danger">
-          <strong>Delete everything</strong>
+          <strong>{t.delete}</strong>
           <ChevronRight size={24} />
         </div>
       </section>
 
       <section className="account-section">
-        <p className="section-label">Support</p>
+        <p className="section-label">
+          {t.support}
+        </p>
 
         <div className="account-row">
-          <strong>Help</strong>
-          <ChevronRight size={24} color="#645b6e" />
+          <strong>{t.help}</strong>
+          <ChevronRight
+            size={24}
+            color="#645b6e"
+          />
         </div>
 
         <div className="account-row">
-          <strong>Terms &amp; Privacy</strong>
-          <ChevronRight size={24} color="#645b6e" />
+          <strong>{t.terms}</strong>
+          <ChevronRight
+            size={24}
+            color="#645b6e"
+          />
         </div>
       </section>
 
@@ -154,7 +241,7 @@ export function AccountContent({
         type="button"
         onClick={handleLogout}
       >
-        Log out
+        {t.logout}
       </button>
     </div>
   );
