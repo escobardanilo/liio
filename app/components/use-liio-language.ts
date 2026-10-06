@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { saveFamilyLanguage } from "@/lib/services/settings-service";
 
 export type LiioLanguage = "pt" | "en" | "es" | "de";
 
@@ -42,6 +43,8 @@ export function useLiioLanguage() {
           detail: nextLanguage,
         }),
       );
+
+      void saveFamilyLanguage(nextLanguage);
     } catch {
       // Keep the selected language in memory if browser storage is unavailable.
     }
