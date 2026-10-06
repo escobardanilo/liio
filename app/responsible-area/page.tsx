@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { liioCopy } from "@/lib/i18n/catalog";
 import { useRouter } from "next/navigation";
 import { KeyRound, Mail, X } from "lucide-react";
 import {
@@ -24,68 +25,8 @@ type ParentProfile = {
 
 const PROFILE_STORAGE_KEY = "liio-parent-profile";
 
-const copy = {
-  en: {
-    title: "Parents Area",
-    subtitle: "Sign in to create and manage profiles",
-    apple: "Continue with Apple",
-    google: "Continue with Google",
-    email: "Sign in with e-mail",
-    passkey: "Use passkey",
-    createFamily: "Create family",
-    createProfile: "Create your profile",
-    description: "Tell liio how we should identify you in the Parents Area.",
-    yourName: "Your name",
-    placeholder: "Your name",
-    prototype: "Prototype access — no external account will be connected.",
-    continue: "Continue",
-  },
-  pt: {
-    title: "Área dos responsáveis",
-    subtitle: "Entra para criar e gerir perfis",
-    apple: "Continuar com Apple",
-    google: "Continuar com Google",
-    email: "Entrar com e-mail",
-    passkey: "Usar passkey",
-    createFamily: "Criar família",
-    createProfile: "Criar o teu perfil",
-    description: "Diz ao liio como devemos identificar-te na Área dos responsáveis.",
-    yourName: "O teu nome",
-    placeholder: "O teu nome",
-    prototype: "Acesso de protótipo — nenhuma conta externa será ligada.",
-    continue: "Continuar",
-  },
-  es: {
-    title: "Área de responsables",
-    subtitle: "Inicia sesión para crear y gestionar perfiles",
-    apple: "Continuar con Apple",
-    google: "Continuar con Google",
-    email: "Entrar con e-mail",
-    passkey: "Usar passkey",
-    createFamily: "Crear familia",
-    createProfile: "Crear tu perfil",
-    description: "Dile a liio cómo debemos identificarte en el Área de responsables.",
-    yourName: "Tu nombre",
-    placeholder: "Tu nombre",
-    prototype: "Acceso de prototipo — no se conectará ninguna cuenta externa.",
-    continue: "Continuar",
-  },
-  de: {
-    title: "Elternbereich",
-    subtitle: "Anmelden, um Profile zu erstellen und zu verwalten",
-    apple: "Mit Apple fortfahren",
-    google: "Mit Google fortfahren",
-    email: "Mit E-Mail anmelden",
-    passkey: "Passkey verwenden",
-    createFamily: "Familie erstellen",
-    createProfile: "Profil erstellen",
-    description: "Sag liio, wie wir dich im Elternbereich nennen sollen.",
-    yourName: "Dein Name",
-    placeholder: "Dein Name",
-    prototype: "Prototypzugang — es wird kein externes Konto verbunden.",
-    continue: "Weiter",
-  },
-} as const;
+const copy = liioCopy.parentsAuth;
+
 
 const methodLabels: Record<AuthMethod, string> = {
   apple: "Apple",
