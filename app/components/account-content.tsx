@@ -58,6 +58,7 @@ export function AccountContent({
   }, [profile]);
 
   function handleLogout() {
+    window.sessionStorage.removeItem(SESSION_STORAGE_KEY);
     window.localStorage.removeItem(SESSION_STORAGE_KEY);
 
     if (onClose) {
