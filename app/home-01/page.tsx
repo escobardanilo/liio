@@ -100,7 +100,7 @@ export default function EntryPage() {
             >
               <img
                 className={styles.kidsImage}
-                src="/images/kids-liio.png"
+                src="/images/kids-liio.png?v=2"
                 alt=""
               />
             </div>
