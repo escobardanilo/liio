@@ -7,6 +7,7 @@ import {
   decodePairingCode,
   normalizePairingCode,
 } from "@/lib/device-code";
+import { useLiioLanguage } from "../components/use-liio-language";
 import { BackButton, Brand, MobileShell } from "../components/ui";
 import styles from "./page.module.css";
 
@@ -20,8 +21,73 @@ const CHILDREN_KEY = "liio-parent-child-profiles";
 const ACTIVE_CHILD_KEY = "liio-active-child-profile";
 const SELECTED_CHILD_KEY = "liio-selected-child-id";
 
+const copy = {
+  en: {
+    enterTitle: "Enter liio",
+    instruction:
+      "Ask a parent or family member for the code generated in Devices & codes.",
+    deviceCode: "Device code",
+    expires: "Codes are temporary and expire after 10 minutes.",
+    continue: "Continue",
+    invalid: "This code is invalid or has expired.",
+    noProfiles: "No child profiles are available for this family.",
+    loadError: "liio could not load the family profiles.",
+    who: "Who's using liio?",
+    choose: "Choose the child profile that will use liio on this device.",
+    years: "years old",
+    otherCode: "Use another code",
+  },
+  pt: {
+    enterTitle: "Entrar no liio",
+    instruction:
+      "Pede ao responsável o código gerado em Dispositivos e códigos.",
+    deviceCode: "Código do dispositivo",
+    expires: "Os códigos são temporários e expiram após 10 minutos.",
+    continue: "Continuar",
+    invalid: "Este código é inválido ou expirou.",
+    noProfiles: "Não existem perfis de crianças disponíveis nesta família.",
+    loadError: "liio não conseguiu carregar os perfis da família.",
+    who: "Quem vai usar o liio?",
+    choose: "Escolhe o perfil da criança que vai usar o liio neste dispositivo.",
+    years: "anos",
+    otherCode: "Usar outro código",
+  },
+  es: {
+    enterTitle: "Entrar en liio",
+    instruction:
+      "Pide a un responsable el código generado en Dispositivos y códigos.",
+    deviceCode: "Código del dispositivo",
+    expires: "Los códigos son temporales y caducan después de 10 minutos.",
+    continue: "Continuar",
+    invalid: "Este código no es válido o ha caducado.",
+    noProfiles: "No hay perfiles infantiles disponibles para esta familia.",
+    loadError: "liio no pudo cargar los perfiles de la familia.",
+    who: "¿Quién va a usar liio?",
+    choose: "Elige el perfil del niño que usará liio en este dispositivo.",
+    years: "años",
+    otherCode: "Usar otro código",
+  },
+  de: {
+    enterTitle: "liio betreten",
+    instruction:
+      "Bitte eine erziehungsberechtigte Person um den Code aus Geräte & Codes.",
+    deviceCode: "Gerätecode",
+    expires: "Codes sind temporär und laufen nach 10 Minuten ab.",
+    continue: "Weiter",
+    invalid: "Dieser Code ist ungültig oder abgelaufen.",
+    noProfiles: "Für diese Familie sind keine Kinderprofile verfügbar.",
+    loadError: "liio konnte die Familienprofile nicht laden.",
+    who: "Wer benutzt liio?",
+    choose: "Wähle das Kinderprofil aus, das liio auf diesem Gerät verwendet.",
+    years: "Jahre alt",
+    otherCode: "Anderen Code verwenden",
+  },
+} as const;
+
 export default function EnterLiioPage() {
   const router = useRouter();
+  const { language } = useLiioLanguage();
+  const t = copy[language];
 
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
@@ -45,7 +111,7 @@ export default function EnterLiioPage() {
     const decoded = decodePairingCode(code);
 
     if (!decoded) {
-      setError("This code is invalid or has expired.");
+      setError(t.invalid);
       return;
     }
 
@@ -53,14 +119,14 @@ export default function EnterLiioPage() {
       const storedChildren = window.localStorage.getItem(CHILDREN_KEY);
 
       if (!storedChildren) {
-        setError("No child profiles are available for this family.");
+        setError(t.noProfiles);
         return;
       }
 
       const parsedChildren = JSON.parse(storedChildren) as ChildProfile[];
 
       if (!Array.isArray(parsedChildren) || parsedChildren.length === 0) {
-        setError("No child profiles are available for this family.");
+        setError(t.noProfiles);
         return;
       }
 
@@ -68,7 +134,7 @@ export default function EnterLiioPage() {
       setStep("profile");
       setError("");
     } catch {
-      setError("liio could not load the family profiles.");
+      setError(t.loadError);
     }
   }
 
@@ -109,15 +175,12 @@ export default function EnterLiioPage() {
                 <KeyRound size={34} strokeWidth={2} />
               </div>
 
-              <h1>Enter liio</h1>
+              <h1>{t.enterTitle}</h1>
 
-              <p>
-                Ask a parent or family member for the code generated in
-                <strong> Devices &amp; codes</strong>.
-              </p>
+              <p>{t.instruction}</p>
 
               <form className={styles.form} onSubmit={handleSubmit}>
-                <label htmlFor="liio-code">Device code</label>
+                <label htmlFor="liio-code">{t.deviceCode}</label>
 
                 <input
                   id="liio-code"
@@ -136,7 +199,7 @@ export default function EnterLiioPage() {
                   </p>
                 ) : (
                   <p className={styles.helper}>
-                    Codes are temporary and expire after 10 minutes.
+                    {t.expires}
                   </p>
                 )}
 
@@ -145,7 +208,7 @@ export default function EnterLiioPage() {
                   type="submit"
                   disabled={normalizePairingCode(code).length !== 6}
                 >
-                  Continue
+                  {t.continue}
                 </button>
               </form>
             </>
@@ -155,11 +218,9 @@ export default function EnterLiioPage() {
                 <UserRound size={34} strokeWidth={2} />
               </div>
 
-              <h1>Who&apos;s using liio?</h1>
+              <h1>{t.who}</h1>
 
-              <p>
-                Choose the child profile that will use liio on this device.
-              </p>
+              <p>{t.choose}</p>
 
               <div className={styles.profileList}>
                 {children.map((child) => (
@@ -175,7 +236,9 @@ export default function EnterLiioPage() {
 
                     <span className={styles.profileCopy}>
                       <strong>{child.name}</strong>
-                      <small>{child.age} years old</small>
+                      <small>
+                        {child.age} {t.years}
+                      </small>
                     </span>
                   </button>
                 ))}
@@ -190,7 +253,7 @@ export default function EnterLiioPage() {
                   setError("");
                 }}
               >
-                Use another code
+                {t.otherCode}
               </button>
             </>
           )}
