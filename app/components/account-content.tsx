@@ -113,7 +113,7 @@ export function AccountContent({
 
         <div className="account-row">
           <div className="account-row__stack">
-            <strong>Liio Family</strong>
+            <strong>liio Family</strong>
             <span>Prototype plan · No billing</span>
           </div>
         </div>
