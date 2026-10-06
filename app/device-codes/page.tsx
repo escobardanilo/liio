@@ -136,12 +136,12 @@ export default function DeviceCodesPage() {
     }
 
     const message =
-      `Enter this Liio family code: ${storedCode.code}`;
+      `Enter this liio family code: ${storedCode.code}`;
 
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "Liio family code",
+          title: "liio family code",
           text: message,
         });
 
@@ -205,7 +205,7 @@ export default function DeviceCodesPage() {
               <>
                 <p className="device-helper">
                   Enter this code in{" "}
-                  <strong>Enter LIIO</strong>
+                  <strong>Enter liio</strong>
                 </p>
 
                 <div className="device-code">
