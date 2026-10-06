@@ -40,38 +40,43 @@ const copy = {
     family: "Family",
     parents: "Parents",
     noProfiles: "No child profiles yet",
-    addFirst: "{t.addFirst}",
-    addChild: "{t.addChild}",
+    addFirst:
+      "Add your first child to start setting up their liio experience.",
+    addChild: "Add child",
     children: "Children",
-    choose: "{t.choose}",
+    choose: "Choose a profile to manage",
     add: "Add",
     years: "years old",
     profile: "Profile",
-    edit: "{t.edit}",
+    edit: "Edit profile",
     remove: "Remove",
     manage: "Manage",
     activity: "Activity",
-    activitySub: "{t.activitySub}",
+    activitySub: "Sessions and learning activity",
     limits: "Time & limits",
-    limitsSub: "{t.limitsSub}",
+    limitsSub: "Daily limits and permissions",
     devices: "Devices & codes",
-    devicesSub: "{t.devicesSub}",
+    devicesSub: "Generate a code to enter liio",
     childProfile: "Child profile",
     editChild: "Edit child",
-    addChildTitle: "{t.addChild}",
+    addChildTitle: "Add child",
     name: "Name",
     age: "Age",
-    hint: "liio currently supports learning profiles from 6 to 15 {t.years}.",
+    childNamePlaceholder: "Child's name",
+    hint:
+      "liio currently supports learning profiles from 6 to 15 years old.",
     cancel: "Cancel",
     save: "Save changes",
     create: "Create profile",
-    removeConfirm: (name: string) => `Remove ${name}'s profile from this device?`,
+    removeConfirm: (name: string) =>
+      `Remove ${name}'s profile from this device?`,
   },
   pt: {
     family: "Família",
     parents: "Responsáveis",
     noProfiles: "Ainda não existem perfis de crianças",
-    addFirst: "Adiciona a primeira criança para começar a configurar a experiência no liio.",
+    addFirst:
+      "Adiciona a primeira criança para começar a configurar a experiência no liio.",
     addChild: "Adicionar criança",
     children: "Crianças",
     choose: "Escolhe um perfil para gerir",
@@ -92,17 +97,21 @@ const copy = {
     addChildTitle: "Adicionar criança",
     name: "Nome",
     age: "Idade",
-    hint: "liio suporta atualmente perfis de aprendizagem dos 6 aos 15 anos.",
+    childNamePlaceholder: "Nome da criança",
+    hint:
+      "liio suporta atualmente perfis de aprendizagem dos 6 aos 15 anos.",
     cancel: "Cancelar",
     save: "Guardar alterações",
     create: "Criar perfil",
-    removeConfirm: (name: string) => `Remover o perfil de ${name} deste dispositivo?`,
+    removeConfirm: (name: string) =>
+      `Remover o perfil de ${name} deste dispositivo?`,
   },
   es: {
     family: "Familia",
     parents: "Responsables",
     noProfiles: "Aún no hay perfiles infantiles",
-    addFirst: "Añade al primer niño para empezar a configurar su experiencia en liio.",
+    addFirst:
+      "Añade al primer niño para empezar a configurar su experiencia en liio.",
     addChild: "Añadir niño",
     children: "Niños",
     choose: "Elige un perfil para gestionar",
@@ -123,17 +132,21 @@ const copy = {
     addChildTitle: "Añadir niño",
     name: "Nombre",
     age: "Edad",
-    hint: "liio admite actualmente perfiles de aprendizaje de 6 a 15 años.",
+    childNamePlaceholder: "Nombre del niño",
+    hint:
+      "liio admite actualmente perfiles de aprendizaje de 6 a 15 años.",
     cancel: "Cancelar",
     save: "Guardar cambios",
     create: "Crear perfil",
-    removeConfirm: (name: string) => `¿Eliminar el perfil de ${name} de este dispositivo?`,
+    removeConfirm: (name: string) =>
+      `¿Eliminar el perfil de ${name} de este dispositivo?`,
   },
   de: {
     family: "Familie",
     parents: "Eltern",
     noProfiles: "Noch keine Kinderprofile",
-    addFirst: "Füge das erste Kind hinzu, um die liio-Erfahrung einzurichten.",
+    addFirst:
+      "Füge das erste Kind hinzu, um die liio-Erfahrung einzurichten.",
     addChild: "Kind hinzufügen",
     children: "Kinder",
     choose: "Profil zum Verwalten auswählen",
@@ -154,11 +167,14 @@ const copy = {
     addChildTitle: "Kind hinzufügen",
     name: "Name",
     age: "Alter",
-    hint: "liio unterstützt derzeit Lernprofile von 6 bis 15 Jahren.",
+    childNamePlaceholder: "Name des Kindes",
+    hint:
+      "liio unterstützt derzeit Lernprofile von 6 bis 15 Jahren.",
     cancel: "Abbrechen",
     save: "Änderungen speichern",
     create: "Profil erstellen",
-    removeConfirm: (name: string) => `Profil von ${name} von diesem Gerät entfernen?`,
+    removeConfirm: (name: string) =>
+      `Profil von ${name} von diesem Gerät entfernen?`,
   },
 } as const;
 
@@ -179,14 +195,16 @@ export default function ParentsHomePage() {
 
   useEffect(() => {
     try {
-      const storedProfile = window.localStorage.getItem(PROFILE_STORAGE_KEY);
+      const storedProfile =
+        window.localStorage.getItem(PROFILE_STORAGE_KEY);
 
       if (!storedProfile || !isParentSessionActive()) {
         router.replace("/responsible-area");
         return;
       }
 
-      const stored = window.localStorage.getItem(STORAGE_KEY);
+      const stored =
+        window.localStorage.getItem(STORAGE_KEY);
       const storedSelectedId =
         window.localStorage.getItem(SELECTED_CHILD_KEY);
 
@@ -226,11 +244,17 @@ export default function ParentsHomePage() {
       return;
     }
 
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles));
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(profiles),
+    );
   }, [profiles, ready]);
 
   const selectedProfile = useMemo(
-    () => profiles.find((profile) => profile.id === selectedId) ?? null,
+    () =>
+      profiles.find(
+        (profile) => profile.id === selectedId,
+      ) ?? null,
     [profiles, selectedId],
   );
 
@@ -266,13 +290,20 @@ export default function ParentsHomePage() {
     });
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
     const name = form.name.trim();
     const age = Number(form.age);
 
-    if (!name || !Number.isInteger(age) || age < 6 || age > 15) {
+    if (
+      !name ||
+      !Number.isInteger(age) ||
+      age < 6 ||
+      age > 15
+    ) {
       return;
     }
 
@@ -295,7 +326,11 @@ export default function ParentsHomePage() {
         age,
       };
 
-      setProfiles((current) => [...current, newProfile]);
+      setProfiles((current) => [
+        ...current,
+        newProfile,
+      ]);
+
       selectProfile(newProfile.id);
     }
 
@@ -313,11 +348,13 @@ export default function ParentsHomePage() {
 
     setProfiles((current) => {
       const nextProfiles = current.filter(
-        (currentProfile) => currentProfile.id !== profile.id,
+        (currentProfile) =>
+          currentProfile.id !== profile.id,
       );
 
       if (selectedId === profile.id) {
-        const nextSelectedId = nextProfiles[0]?.id ?? null;
+        const nextSelectedId =
+          nextProfiles[0]?.id ?? null;
 
         setSelectedId(nextSelectedId);
 
@@ -327,7 +364,9 @@ export default function ParentsHomePage() {
             nextSelectedId,
           );
         } else {
-          window.localStorage.removeItem(SELECTED_CHILD_KEY);
+          window.localStorage.removeItem(
+            SELECTED_CHILD_KEY,
+          );
         }
       }
 
@@ -348,7 +387,9 @@ export default function ParentsHomePage() {
       <section className={styles.page}>
         <header className={styles.header}>
           <div>
-            <p className={styles.eyebrow}>{t.family}</p>
+            <p className={styles.eyebrow}>
+              {t.family}
+            </p>
             <h1>{t.parents}</h1>
           </div>
 
@@ -358,14 +399,15 @@ export default function ParentsHomePage() {
         {profiles.length === 0 ? (
           <section className={styles.emptyState}>
             <div className={styles.emptyIcon}>
-              <UserRound size={36} strokeWidth={1.8} />
+              <UserRound
+                size={36}
+                strokeWidth={1.8}
+              />
             </div>
 
             <h2>{t.noProfiles}</h2>
 
-            <p>
-              {t.addFirst}
-            </p>
+            <p>{t.addFirst}</p>
 
             <button
               className={styles.primaryButton}
@@ -381,8 +423,13 @@ export default function ParentsHomePage() {
             <section className={styles.profilesSection}>
               <div className={styles.sectionHeader}>
                 <div>
-                  <p className={styles.sectionLabel}>{t.children}</p>
-                  <span className={styles.sectionDescription}>
+                  <p className={styles.sectionLabel}>
+                    {t.children}
+                  </p>
+
+                  <span
+                    className={styles.sectionDescription}
+                  >
                     {t.choose}
                   </span>
                 </div>
@@ -392,30 +439,44 @@ export default function ParentsHomePage() {
                   type="button"
                   onClick={openCreateProfile}
                 >
-                  Add
+                  {t.add}
                 </button>
               </div>
 
               <div className={styles.profileList}>
                 {profiles.map((profile) => {
-                  const active = profile.id === selectedId;
+                  const active =
+                    profile.id === selectedId;
 
                   return (
                     <button
                       key={profile.id}
                       type="button"
                       className={`${styles.profileCard} ${
-                        active ? styles.profileCardActive : ""
+                        active
+                          ? styles.profileCardActive
+                          : ""
                       }`}
-                      onClick={() => selectProfile(profile.id)}
+                      onClick={() =>
+                        selectProfile(profile.id)
+                      }
                     >
                       <span className={styles.avatar}>
-                        {profile.name.charAt(0).toUpperCase()}
+                        {profile.name
+                          .charAt(0)
+                          .toUpperCase()}
                       </span>
 
-                      <span className={styles.profileCopy}>
-                        <strong>{profile.name}</strong>
-                        <small>{profile.age} {t.years}</small>
+                      <span
+                        className={styles.profileCopy}
+                      >
+                        <strong>
+                          {profile.name}
+                        </strong>
+
+                        <small>
+                          {profile.age} {t.years}
+                        </small>
                       </span>
                     </button>
                   );
@@ -425,80 +486,174 @@ export default function ParentsHomePage() {
 
             {selectedProfile ? (
               <>
-                <section className={styles.profileDetails}>
-                  <div className={styles.profileDetailsTop}>
+                <section
+                  className={styles.profileDetails}
+                >
+                  <div
+                    className={
+                      styles.profileDetailsTop
+                    }
+                  >
                     <div>
-                      <p className={styles.sectionLabel}>{t.profile}</p>
-                      <h2>{selectedProfile.name}</h2>
-                      <span>{selectedProfile.age} {t.years}</span>
+                      <p
+                        className={styles.sectionLabel}
+                      >
+                        {t.profile}
+                      </p>
+
+                      <h2>
+                        {selectedProfile.name}
+                      </h2>
+
+                      <span>
+                        {selectedProfile.age}{" "}
+                        {t.years}
+                      </span>
                     </div>
 
-                    <div className={styles.profileAvatarLarge}>
-                      {selectedProfile.name.charAt(0).toUpperCase()}
+                    <div
+                      className={
+                        styles.profileAvatarLarge
+                      }
+                    >
+                      {selectedProfile.name
+                        .charAt(0)
+                        .toUpperCase()}
                     </div>
                   </div>
 
-                  <div className={styles.profileActions}>
+                  <div
+                    className={styles.profileActions}
+                  >
                     <button
                       type="button"
-                      onClick={() => openEditProfile(selectedProfile)}
+                      onClick={() =>
+                        openEditProfile(
+                          selectedProfile,
+                        )
+                      }
                     >
-                      <Pencil size={19} strokeWidth={2.2} />
+                      <Pencil
+                        size={19}
+                        strokeWidth={2.2}
+                      />
                       {t.edit}
                     </button>
 
                     <button
                       className={styles.dangerButton}
                       type="button"
-                      onClick={() => removeProfile(selectedProfile)}
+                      onClick={() =>
+                        removeProfile(
+                          selectedProfile,
+                        )
+                      }
                     >
-                      <Trash2 size={19} strokeWidth={2.2} />
-                      Remove
+                      <Trash2
+                        size={19}
+                        strokeWidth={2.2}
+                      />
+                      {t.remove}
                     </button>
                   </div>
                 </section>
 
-                <section className={styles.manageSection}>
-                  <p className={styles.sectionLabel}>{t.manage}</p>
+                <section
+                  className={styles.manageSection}
+                >
+                  <p className={styles.sectionLabel}>
+                    {t.manage}
+                  </p>
 
                   <nav className={styles.manageList}>
-                    <Link className={styles.manageRow} href="/activity">
-                      <span className={styles.manageIcon}>
-                        <Activity size={20} strokeWidth={2.1} />
+                    <Link
+                      className={styles.manageRow}
+                      href="/activity"
+                    >
+                      <span
+                        className={styles.manageIcon}
+                      >
+                        <Activity
+                          size={20}
+                          strokeWidth={2.1}
+                        />
                       </span>
 
-                      <span className={styles.manageCopy}>
-                        <strong>{t.activity}</strong>
-                        <small>{t.activitySub}</small>
+                      <span
+                        className={styles.manageCopy}
+                      >
+                        <strong>
+                          {t.activity}
+                        </strong>
+                        <small>
+                          {t.activitySub}
+                        </small>
                       </span>
 
-                      <ChevronRight size={22} strokeWidth={2.1} />
+                      <ChevronRight
+                        size={22}
+                        strokeWidth={2.1}
+                      />
                     </Link>
 
-                    <Link className={styles.manageRow} href="/time-limits">
-                      <span className={styles.manageIcon}>
-                        <Clock3 size={20} strokeWidth={2.1} />
+                    <Link
+                      className={styles.manageRow}
+                      href="/time-limits"
+                    >
+                      <span
+                        className={styles.manageIcon}
+                      >
+                        <Clock3
+                          size={20}
+                          strokeWidth={2.1}
+                        />
                       </span>
 
-                      <span className={styles.manageCopy}>
-                        <strong>{t.limits}</strong>
-                        <small>{t.limitsSub}</small>
+                      <span
+                        className={styles.manageCopy}
+                      >
+                        <strong>
+                          {t.limits}
+                        </strong>
+                        <small>
+                          {t.limitsSub}
+                        </small>
                       </span>
 
-                      <ChevronRight size={22} strokeWidth={2.1} />
+                      <ChevronRight
+                        size={22}
+                        strokeWidth={2.1}
+                      />
                     </Link>
 
-                    <Link className={styles.manageRow} href="/device-codes">
-                      <span className={styles.manageIcon}>
-                        <Smartphone size={20} strokeWidth={2.1} />
+                    <Link
+                      className={styles.manageRow}
+                      href="/device-codes"
+                    >
+                      <span
+                        className={styles.manageIcon}
+                      >
+                        <Smartphone
+                          size={20}
+                          strokeWidth={2.1}
+                        />
                       </span>
 
-                      <span className={styles.manageCopy}>
-                        <strong>{t.devices}</strong>
-                        <small>{t.devicesSub}</small>
+                      <span
+                        className={styles.manageCopy}
+                      >
+                        <strong>
+                          {t.devices}
+                        </strong>
+                        <small>
+                          {t.devicesSub}
+                        </small>
                       </span>
 
-                      <ChevronRight size={22} strokeWidth={2.1} />
+                      <ChevronRight
+                        size={22}
+                        strokeWidth={2.1}
+                      />
                     </Link>
                   </nav>
                 </section>
@@ -517,10 +672,16 @@ export default function ParentsHomePage() {
             >
               <div className={styles.modalHeader}>
                 <div>
-                  <p className={styles.sectionLabel}>{t.childProfile}</p>
+                  <p
+                    className={styles.sectionLabel}
+                  >
+                    {t.childProfile}
+                  </p>
 
                   <h2 id="child-profile-title">
-                    {editingId ? "Edit child" : "{t.addChild}"}
+                    {editingId
+                      ? t.editChild
+                      : t.addChildTitle}
                   </h2>
                 </div>
 
@@ -530,11 +691,17 @@ export default function ParentsHomePage() {
                   onClick={closeModal}
                   aria-label="Close"
                 >
-                  <X size={24} strokeWidth={2.2} />
+                  <X
+                    size={24}
+                    strokeWidth={2.2}
+                  />
                 </button>
               </div>
 
-              <form className={styles.form} onSubmit={handleSubmit}>
+              <form
+                className={styles.form}
+                onSubmit={handleSubmit}
+              >
                 <label>
                   <span>{t.name}</span>
 
@@ -543,7 +710,9 @@ export default function ParentsHomePage() {
                     value={form.name}
                     maxLength={30}
                     autoFocus
-                    placeholder="Child's name"
+                    placeholder={
+                      t.childNamePlaceholder
+                    }
                     onChange={(event) =>
                       setForm((current) => ({
                         ...current,
@@ -572,21 +741,27 @@ export default function ParentsHomePage() {
                 </label>
 
                 <p className={styles.formHint}>
-                  Liio currently supports learning profiles from 6 to 15 years
-                  old.
+                  {t.hint}
                 </p>
 
                 <div className={styles.formActions}>
                   <button
-                    className={styles.secondaryButton}
+                    className={
+                      styles.secondaryButton
+                    }
                     type="button"
                     onClick={closeModal}
                   >
-                    Cancel
+                    {t.cancel}
                   </button>
 
-                  <button className={styles.saveButton} type="submit">
-                    {editingId ? t.save : t.create}
+                  <button
+                    className={styles.saveButton}
+                    type="submit"
+                  >
+                    {editingId
+                      ? t.save
+                      : t.create}
                   </button>
                 </div>
               </form>
