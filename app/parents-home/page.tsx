@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { liioCopy } from "@/lib/i18n/catalog";
 import { useRouter } from "next/navigation";
 import {
   Activity,
@@ -41,148 +42,8 @@ const STORAGE_KEY = "liio-parent-child-profiles";
 const SELECTED_CHILD_KEY = "liio-selected-child-id";
 const PROFILE_STORAGE_KEY = "liio-parent-profile";
 
-const copy = {
-  en: {
-    family: "Family",
-    parents: "Parents",
-    noProfiles: "No child profiles yet",
-    addFirst:
-      "Add your first child to start setting up their liio experience.",
-    addChild: "Add child",
-    children: "Children",
-    choose: "Choose a profile to manage",
-    add: "Add",
-    years: "years old",
-    profile: "Profile",
-    edit: "Edit profile",
-    remove: "Remove",
-    manage: "Manage",
-    activity: "Activity",
-    activitySub: "Sessions and learning activity",
-    limits: "Time & limits",
-    limitsSub: "Daily limits and permissions",
-    devices: "Devices & codes",
-    devicesSub: "Generate a code to enter liio",
-    childProfile: "Child profile",
-    editChild: "Edit child",
-    addChildTitle: "Add child",
-    name: "Name",
-    age: "Age",
-    childNamePlaceholder: "Child's name",
-    hint:
-      "liio currently supports learning profiles from 6 to 15 years old.",
-    cancel: "Cancel",
-    save: "Save changes",
-    create: "Create profile",
-    removeConfirm: (name: string) =>
-      `Remove ${name}'s profile from this device?`,
-  },
-  pt: {
-    family: "Família",
-    parents: "Responsáveis",
-    noProfiles: "Ainda não existem perfis de crianças",
-    addFirst:
-      "Adiciona a primeira criança para começar a configurar a experiência no liio.",
-    addChild: "Adicionar criança",
-    children: "Crianças",
-    choose: "Escolhe um perfil para gerir",
-    add: "Adicionar",
-    years: "anos",
-    profile: "Perfil",
-    edit: "Editar perfil",
-    remove: "Remover",
-    manage: "Gerir",
-    activity: "Atividade",
-    activitySub: "Sessões e atividade de aprendizagem",
-    limits: "Tempo e limites",
-    limitsSub: "Limites diários e permissões",
-    devices: "Dispositivos e códigos",
-    devicesSub: "Gerar um código para entrar no liio",
-    childProfile: "Perfil da criança",
-    editChild: "Editar criança",
-    addChildTitle: "Adicionar criança",
-    name: "Nome",
-    age: "Idade",
-    childNamePlaceholder: "Nome da criança",
-    hint:
-      "liio suporta atualmente perfis de aprendizagem dos 6 aos 15 anos.",
-    cancel: "Cancelar",
-    save: "Guardar alterações",
-    create: "Criar perfil",
-    removeConfirm: (name: string) =>
-      `Remover o perfil de ${name} deste dispositivo?`,
-  },
-  es: {
-    family: "Familia",
-    parents: "Responsables",
-    noProfiles: "Aún no hay perfiles infantiles",
-    addFirst:
-      "Añade al primer niño para empezar a configurar su experiencia en liio.",
-    addChild: "Añadir niño",
-    children: "Niños",
-    choose: "Elige un perfil para gestionar",
-    add: "Añadir",
-    years: "años",
-    profile: "Perfil",
-    edit: "Editar perfil",
-    remove: "Eliminar",
-    manage: "Gestionar",
-    activity: "Actividad",
-    activitySub: "Sesiones y actividad de aprendizaje",
-    limits: "Tiempo y límites",
-    limitsSub: "Límites diarios y permisos",
-    devices: "Dispositivos y códigos",
-    devicesSub: "Generar un código para entrar en liio",
-    childProfile: "Perfil infantil",
-    editChild: "Editar niño",
-    addChildTitle: "Añadir niño",
-    name: "Nombre",
-    age: "Edad",
-    childNamePlaceholder: "Nombre del niño",
-    hint:
-      "liio admite actualmente perfiles de aprendizaje de 6 a 15 años.",
-    cancel: "Cancelar",
-    save: "Guardar cambios",
-    create: "Crear perfil",
-    removeConfirm: (name: string) =>
-      `¿Eliminar el perfil de ${name} de este dispositivo?`,
-  },
-  de: {
-    family: "Familie",
-    parents: "Eltern",
-    noProfiles: "Noch keine Kinderprofile",
-    addFirst:
-      "Füge das erste Kind hinzu, um die liio-Erfahrung einzurichten.",
-    addChild: "Kind hinzufügen",
-    children: "Kinder",
-    choose: "Profil zum Verwalten auswählen",
-    add: "Hinzufügen",
-    years: "Jahre alt",
-    profile: "Profil",
-    edit: "Profil bearbeiten",
-    remove: "Entfernen",
-    manage: "Verwalten",
-    activity: "Aktivität",
-    activitySub: "Sitzungen und Lernaktivität",
-    limits: "Zeit & Limits",
-    limitsSub: "Tägliche Limits und Berechtigungen",
-    devices: "Geräte & Codes",
-    devicesSub: "Code zum Betreten von liio erzeugen",
-    childProfile: "Kinderprofil",
-    editChild: "Kind bearbeiten",
-    addChildTitle: "Kind hinzufügen",
-    name: "Name",
-    age: "Alter",
-    childNamePlaceholder: "Name des Kindes",
-    hint:
-      "liio unterstützt derzeit Lernprofile von 6 bis 15 Jahren.",
-    cancel: "Abbrechen",
-    save: "Änderungen speichern",
-    create: "Profil erstellen",
-    removeConfirm: (name: string) =>
-      `Profil von ${name} von diesem Gerät entfernen?`,
-  },
-} as const;
+const copy = liioCopy.parentsHome;
+
 
 export default function ParentsHomePage() {
   const router = useRouter();
