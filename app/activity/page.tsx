@@ -5,7 +5,7 @@ import { liioCopy } from "@/lib/i18n/catalog";
 import { listActivity, type ActivityEvent } from "@/lib/services/activity-service";
 import { listChildren } from "@/lib/services/family-service";
 import { useLiioLanguage } from "../components/use-liio-language";
-import { BackButton, MobileShell } from "../components/ui";
+import { DetailHeader, EmptyState, MobileShell } from "../components/ui";
 
 type ChildProfile = {
   id: string;
@@ -145,9 +145,10 @@ export default function ActivityPage() {
   return (
     <MobileShell>
       <section className="detail-page">
-        <BackButton href="/parents-home" />
-
-        <h1>{child?.name ?? t.activity}</h1>
+        <DetailHeader
+          href="/parents-home"
+          title={child?.name ?? t.activity}
+        />
 
         {child ? (
           <>
@@ -282,10 +283,10 @@ export default function ActivityPage() {
             </section>
           </>
         ) : (
-          <section className="privacy-card card">
-            <strong>{t.noChild}</strong>
-            <span>{t.noChildHint}</span>
-          </section>
+          <EmptyState
+            title={t.noChild}
+            description={t.noChildHint}
+          />
         )}
       </section>
     </MobileShell>
