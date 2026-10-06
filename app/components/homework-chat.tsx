@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { liioCopy } from "@/lib/i18n/catalog";
 import { BookOpen, ChevronLeft, Gamepad2, Send } from "lucide-react";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Brand } from "./ui";
@@ -24,72 +25,8 @@ type ActiveChildProfile = {
 
 const ACTIVE_CHILD_KEY = "liio-active-child-profile";
 
-const copy = {
-  en: {
-    mode: "Homework",
-    welcome: (name: string) => `Hey ${name}, what do you want to work on today?`,
-    fractions: "Help with fractions",
-    fractionsPrompt: "I'm stuck on a fractions question.",
-    equation: "Guide an equation",
-    equationPrompt: "Can you guide me through an equation?",
-    explain: "Explain a step",
-    explainPrompt: "I don't understand this homework step.",
-    placeholder: "Ask about your homework…",
-    footer: "liio will guide you one step at a time.",
-    retry: "Try again",
-    unavailable: "liio could not answer right now.",
-    moment: "liio needs a moment. Please try again.",
-    thinking: "liio is thinking",
-  },
-  pt: {
-    mode: "Tarefas",
-    welcome: (name: string) => `Olá, ${name}! O que queres estudar hoje?`,
-    fractions: "Ajuda com frações",
-    fractionsPrompt: "Estou com dificuldade numa questão de frações.",
-    equation: "Orientar uma equação",
-    equationPrompt: "Podes orientar-me numa equação?",
-    explain: "Explicar um passo",
-    explainPrompt: "Não estou a perceber este passo do trabalho.",
-    placeholder: "Pergunta sobre o teu trabalho…",
-    footer: "liio vai orientar-te um passo de cada vez.",
-    retry: "Tentar novamente",
-    unavailable: "liio não conseguiu responder agora.",
-    moment: "liio precisa de um momento. Tenta novamente.",
-    thinking: "liio está a pensar",
-  },
-  es: {
-    mode: "Tareas",
-    welcome: (name: string) => `Hola ${name}, ¿en qué quieres trabajar hoy?`,
-    fractions: "Ayuda con fracciones",
-    fractionsPrompt: "Estoy atascado con una pregunta de fracciones.",
-    equation: "Guiar una ecuación",
-    equationPrompt: "¿Puedes guiarme con una ecuación?",
-    explain: "Explicar un paso",
-    explainPrompt: "No entiendo este paso de la tarea.",
-    placeholder: "Pregunta sobre tu tarea…",
-    footer: "liio te guiará paso a paso.",
-    retry: "Intentar de nuevo",
-    unavailable: "liio no pudo responder ahora.",
-    moment: "liio necesita un momento. Inténtalo de nuevo.",
-    thinking: "liio está pensando",
-  },
-  de: {
-    mode: "Hausaufgaben",
-    welcome: (name: string) => `Hallo ${name}, woran möchtest du heute arbeiten?`,
-    fractions: "Hilfe mit Brüchen",
-    fractionsPrompt: "Ich komme bei einer Bruchaufgabe nicht weiter.",
-    equation: "Gleichung begleiten",
-    equationPrompt: "Kannst du mich durch eine Gleichung führen?",
-    explain: "Einen Schritt erklären",
-    explainPrompt: "Ich verstehe diesen Schritt der Aufgabe nicht.",
-    placeholder: "Frag zu deinen Hausaufgaben…",
-    footer: "liio begleitet dich Schritt für Schritt.",
-    retry: "Erneut versuchen",
-    unavailable: "liio konnte gerade nicht antworten.",
-    moment: "liio braucht einen Moment. Versuch es erneut.",
-    thinking: "liio denkt nach",
-  },
-} as const;
+const copy = liioCopy.homework;
+
 
 export function HomeworkChat() {
   const { language, ready: languageReady } = useLiioLanguage();
