@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { liioCopy } from "@/lib/i18n/catalog";
 import { listChildren } from "@/lib/services/family-service";
+import { getSelectedChildId } from "@/lib/services/local-state";
 import { useLiioLanguage } from "../components/use-liio-language";
 import { TimeSettings } from "../components/time-settings";
 import { DetailHeader, EmptyState, MobileShell } from "../components/ui";
@@ -13,7 +14,6 @@ type ChildProfile = {
   age: number;
 };
 
-const SELECTED_CHILD_KEY = "liio-selected-child-id";
 
 const copy = liioCopy.timeLimits;
 
@@ -34,9 +34,7 @@ export default function TimeLimitsPage() {
         const children = await listChildren();
 
         const selectedId =
-          window.localStorage.getItem(
-            SELECTED_CHILD_KEY,
-          );
+          getSelectedChildId();
 
         const selectedChild =
           children.find(
