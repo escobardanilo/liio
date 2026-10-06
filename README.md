@@ -155,6 +155,8 @@ Apply the migrations in filename order:
 1. `supabase/migrations/20261006_liio_foundation.sql`
 2. `supabase/migrations/20261006_learning_observability.sql`
 3. `supabase/migrations/20261006_parent_controls.sql`
+4. `supabase/migrations/20261006_security_hardening.sql`
+5. `supabase/migrations/20261006_data_lifecycle.sql`
 
 ## Current status
 
