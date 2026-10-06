@@ -1,6 +1,17 @@
 "use client";
 
-import { Pencil, Plus, Trash2, UserRound, X } from "lucide-react";
+import Link from "next/link";
+import {
+  Activity,
+  ChevronRight,
+  Clock3,
+  Pencil,
+  Plus,
+  Smartphone,
+  Trash2,
+  UserRound,
+  X,
+} from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { MobileShell } from "../components/ui";
 import { ParentsDrawer } from "../components/parents-drawer";
@@ -18,6 +29,7 @@ type ProfileForm = {
 };
 
 const STORAGE_KEY = "liio-parent-child-profiles";
+const SELECTED_CHILD_KEY = "liio-selected-child-id";
 
 export default function ParentsHomePage() {
   const [profiles, setProfiles] = useState<ChildProfile[]>([]);
@@ -33,6 +45,8 @@ export default function ParentsHomePage() {
   useEffect(() => {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);
+      const storedSelectedId =
+        window.localStorage.getItem(SELECTED_CHILD_KEY);
 
       if (stored) {
         const parsed = JSON.parse(stored) as ChildProfile[];
@@ -40,13 +54,27 @@ export default function ParentsHomePage() {
         if (Array.isArray(parsed)) {
           setProfiles(parsed);
 
-          if (parsed.length > 0) {
-            setSelectedId(parsed[0].id);
+          const selectedStillExists = parsed.some(
+            (profile) => profile.id === storedSelectedId,
+          );
+
+          const initialSelectedId = selectedStillExists
+            ? storedSelectedId
+            : (parsed[0]?.id ?? null);
+
+          setSelectedId(initialSelectedId);
+
+          if (initialSelectedId) {
+            window.localStorage.setItem(
+              SELECTED_CHILD_KEY,
+              initialSelectedId,
+            );
           }
         }
       }
     } catch {
       window.localStorage.removeItem(STORAGE_KEY);
+      window.localStorage.removeItem(SELECTED_CHILD_KEY);
     } finally {
       setReady(true);
     }
@@ -64,6 +92,11 @@ export default function ParentsHomePage() {
     () => profiles.find((profile) => profile.id === selectedId) ?? null,
     [profiles, selectedId],
   );
+
+  function selectProfile(id: string) {
+    setSelectedId(id);
+    window.localStorage.setItem(SELECTED_CHILD_KEY, id);
+  }
 
   function openCreateProfile() {
     setEditingId(null);
@@ -122,7 +155,7 @@ export default function ParentsHomePage() {
       };
 
       setProfiles((current) => [...current, newProfile]);
-      setSelectedId(newProfile.id);
+      selectProfile(newProfile.id);
     }
 
     closeModal();
@@ -143,7 +176,18 @@ export default function ParentsHomePage() {
       );
 
       if (selectedId === profile.id) {
-        setSelectedId(nextProfiles[0]?.id ?? null);
+        const nextSelectedId = nextProfiles[0]?.id ?? null;
+
+        setSelectedId(nextSelectedId);
+
+        if (nextSelectedId) {
+          window.localStorage.setItem(
+            SELECTED_CHILD_KEY,
+            nextSelectedId,
+          );
+        } else {
+          window.localStorage.removeItem(SELECTED_CHILD_KEY);
+        }
       }
 
       return nextProfiles;
@@ -222,7 +266,7 @@ export default function ParentsHomePage() {
                       className={`${styles.profileCard} ${
                         active ? styles.profileCardActive : ""
                       }`}
-                      onClick={() => setSelectedId(profile.id)}
+                      onClick={() => selectProfile(profile.id)}
                     >
                       <span className={styles.avatar}>
                         {profile.name.charAt(0).toUpperCase()}
@@ -239,51 +283,86 @@ export default function ParentsHomePage() {
             </section>
 
             {selectedProfile ? (
-              <section className={styles.profileDetails}>
-                <div className={styles.profileDetailsTop}>
-                  <div>
-                    <p className={styles.sectionLabel}>Profile</p>
-                    <h2>{selectedProfile.name}</h2>
-                    <span>{selectedProfile.age} years old</span>
+              <>
+                <section className={styles.profileDetails}>
+                  <div className={styles.profileDetailsTop}>
+                    <div>
+                      <p className={styles.sectionLabel}>Profile</p>
+                      <h2>{selectedProfile.name}</h2>
+                      <span>{selectedProfile.age} years old</span>
+                    </div>
+
+                    <div className={styles.profileAvatarLarge}>
+                      {selectedProfile.name.charAt(0).toUpperCase()}
+                    </div>
                   </div>
 
-                  <div className={styles.profileAvatarLarge}>
-                    {selectedProfile.name.charAt(0).toUpperCase()}
+                  <div className={styles.profileActions}>
+                    <button
+                      type="button"
+                      onClick={() => openEditProfile(selectedProfile)}
+                    >
+                      <Pencil size={19} strokeWidth={2.2} />
+                      Edit profile
+                    </button>
+
+                    <button
+                      className={styles.dangerButton}
+                      type="button"
+                      onClick={() => removeProfile(selectedProfile)}
+                    >
+                      <Trash2 size={19} strokeWidth={2.2} />
+                      Remove
+                    </button>
                   </div>
-                </div>
+                </section>
 
-                <div className={styles.profileActions}>
-                  <button
-                    type="button"
-                    onClick={() => openEditProfile(selectedProfile)}
-                  >
-                    <Pencil size={19} strokeWidth={2.2} />
-                    Edit profile
-                  </button>
+                <section className={styles.manageSection}>
+                  <p className={styles.sectionLabel}>Manage</p>
 
-                  <button
-                    className={styles.dangerButton}
-                    type="button"
-                    onClick={() => removeProfile(selectedProfile)}
-                  >
-                    <Trash2 size={19} strokeWidth={2.2} />
-                    Remove
-                  </button>
-                </div>
-              </section>
+                  <nav className={styles.manageList}>
+                    <Link className={styles.manageRow} href="/activity">
+                      <span className={styles.manageIcon}>
+                        <Activity size={20} strokeWidth={2.1} />
+                      </span>
+
+                      <span className={styles.manageCopy}>
+                        <strong>Activity</strong>
+                        <small>Sessions and learning activity</small>
+                      </span>
+
+                      <ChevronRight size={22} strokeWidth={2.1} />
+                    </Link>
+
+                    <Link className={styles.manageRow} href="/time-limits">
+                      <span className={styles.manageIcon}>
+                        <Clock3 size={20} strokeWidth={2.1} />
+                      </span>
+
+                      <span className={styles.manageCopy}>
+                        <strong>Time &amp; limits</strong>
+                        <small>Daily limits and permissions</small>
+                      </span>
+
+                      <ChevronRight size={22} strokeWidth={2.1} />
+                    </Link>
+
+                    <Link className={styles.manageRow} href="/device-codes">
+                      <span className={styles.manageIcon}>
+                        <Smartphone size={20} strokeWidth={2.1} />
+                      </span>
+
+                      <span className={styles.manageCopy}>
+                        <strong>Devices &amp; codes</strong>
+                        <small>Generate a code to enter Liio</small>
+                      </span>
+
+                      <ChevronRight size={22} strokeWidth={2.1} />
+                    </Link>
+                  </nav>
+                </section>
+              </>
             ) : null}
-
-            <section className={styles.futureSection}>
-              <p className={styles.sectionLabel}>Liio</p>
-
-              <div className={styles.futureCard}>
-                <strong>No activity yet</strong>
-                <span>
-                  Learning activity, limits and device information will appear
-                  here once this profile starts using Liio.
-                </span>
-              </div>
-            </section>
           </>
         )}
 
