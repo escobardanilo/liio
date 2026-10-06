@@ -320,9 +320,16 @@
   height: 126px;
   align-self: center;
   justify-self: start;
-  place-items: center;
-  border-radius: 34px;
-  background: rgb(75 38 211 / 18%);
+  place-items: end center;
+  overflow: visible;
+}
+
+.kidsImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
 }
 
 
