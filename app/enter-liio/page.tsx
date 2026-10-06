@@ -9,6 +9,10 @@ import {
   resolvePairingCode,
 } from "@/lib/services/pairing-service";
 import {
+  saveActiveChildProfile,
+  setSelectedChildId,
+} from "@/lib/services/local-state";
+import {
   normalizePairingCode,
 } from "@/lib/device-code";
 import { useLiioLanguage } from "../components/use-liio-language";
@@ -21,8 +25,6 @@ type ChildProfile = {
   age: number;
 };
 
-const ACTIVE_CHILD_KEY = "liio-active-child-profile";
-const SELECTED_CHILD_KEY = "liio-selected-child-id";
 
 const copy = liioCopy.enter;
 
@@ -95,13 +97,11 @@ export default function EnterLiioPage() {
         pairedAt: new Date().toISOString(),
       };
 
-      window.localStorage.setItem(
-        ACTIVE_CHILD_KEY,
-        JSON.stringify(activeProfile),
+      saveActiveChildProfile(
+        activeProfile,
       );
 
-      window.localStorage.setItem(
-        SELECTED_CHILD_KEY,
+      setSelectedChildId(
         device.childId,
       );
 
