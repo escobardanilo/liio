@@ -5,6 +5,7 @@ import { BookOpen, ChevronLeft, Gamepad2, Send } from "lucide-react";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Brand } from "./ui";
 import { Mascot } from "./mascot";
+import { getDeviceIdentity } from "@/lib/services/pairing-service";
 import { useLiioLanguage } from "./use-liio-language";
 
 type ChatMessage = {
@@ -110,6 +111,7 @@ export function HomeworkChat() {
   const endRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<AbortController | null>(null);
   const initializedRef = useRef(false);
+  const learningSessionIdRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (!languageReady || initializedRef.current) {
@@ -188,6 +190,8 @@ export function HomeworkChat() {
         body: JSON.stringify({
           age: child.age,
           language,
+          deviceToken: getDeviceIdentity()?.token,
+          learningSessionId: learningSessionIdRef.current,
           messages: conversation
             .slice(-40)
             .map(({ role, content }) => ({
@@ -203,10 +207,16 @@ export function HomeworkChat() {
           id?: string;
           content?: string;
         };
+        learningSessionId?: string;
         error?: {
           message?: string;
         };
       };
+
+      if (data.learningSessionId) {
+        learningSessionIdRef.current =
+          data.learningSessionId;
+      }
 
       if (!response.ok || !data.message?.content) {
         throw new Error(
