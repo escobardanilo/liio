@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { liioCopy } from "@/lib/i18n/catalog";
 import { useRouter } from "next/navigation";
 import { ChevronRight, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -27,68 +28,8 @@ const methodLabels: Record<AuthMethod, string> = {
   family: "Family profile",
 };
 
-const copy = {
-  en: {
-    account: "Account",
-    parent: "Parent",
-    prototypeAccount: "Prototype account",
-    plan: "Plan",
-    family: "liio Family",
-    planSub: "Prototype plan · No billing",
-    data: "Your child's data",
-    download: "Download everything",
-    delete: "Delete everything",
-    support: "Support",
-    help: "Help",
-    terms: "Terms & Privacy",
-    logout: "Log out",
-  },
-  pt: {
-    account: "Conta",
-    parent: "Responsável",
-    prototypeAccount: "Conta de protótipo",
-    plan: "Plano",
-    family: "Família liio",
-    planSub: "Plano de protótipo · Sem faturação",
-    data: "Dados da criança",
-    download: "Transferir tudo",
-    delete: "Eliminar tudo",
-    support: "Suporte",
-    help: "Ajuda",
-    terms: "Termos e Privacidade",
-    logout: "Terminar sessão",
-  },
-  es: {
-    account: "Cuenta",
-    parent: "Responsable",
-    prototypeAccount: "Cuenta de prototipo",
-    plan: "Plan",
-    family: "Familia liio",
-    planSub: "Plan de prototipo · Sin facturación",
-    data: "Datos del niño",
-    download: "Descargar todo",
-    delete: "Eliminar todo",
-    support: "Soporte",
-    help: "Ayuda",
-    terms: "Términos y Privacidad",
-    logout: "Cerrar sesión",
-  },
-  de: {
-    account: "Konto",
-    parent: "Elternteil",
-    prototypeAccount: "Prototypkonto",
-    plan: "Plan",
-    family: "liio Familie",
-    planSub: "Prototyp-Plan · Keine Abrechnung",
-    data: "Daten des Kindes",
-    download: "Alles herunterladen",
-    delete: "Alles löschen",
-    support: "Support",
-    help: "Hilfe",
-    terms: "Bedingungen & Datenschutz",
-    logout: "Abmelden",
-  },
-} as const;
+const copy = liioCopy.account;
+
 
 export function AccountContent({
   onClose,
