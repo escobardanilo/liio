@@ -7,6 +7,11 @@ import { ChevronRight, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { endParentSession } from "@/lib/parent-session";
 import { getParentProfile } from "@/lib/services/local-state";
+import {
+  deleteLiioFamilyData,
+  downloadJson,
+  exportLiioFamilyData,
+} from "@/lib/services/data-portability-service";
 import { useLiioLanguage } from "./use-liio-language";
 
 type AuthMethod = "apple" | "google" | "email" | "passkey" | "family";
@@ -41,6 +46,7 @@ export function AccountContent({
 
   const [profile, setProfile] =
     useState<ParentProfile | null>(null);
+  const [working, setWorking] = useState(false);
 
   useEffect(() => {
     try {
@@ -64,6 +70,47 @@ export function AccountContent({
 
     return name.charAt(0).toUpperCase();
   }, [profile]);
+
+  async function handleDownload() {
+    setWorking(true);
+
+    try {
+      const data = await exportLiioFamilyData();
+
+      downloadJson(
+        `liio-family-export-${new Date()
+          .toISOString()
+          .slice(0, 10)}.json`,
+        data,
+      );
+    } finally {
+      setWorking(false);
+    }
+  }
+
+  async function handleDelete() {
+    const confirmed = window.confirm(
+      t.deleteConfirm,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setWorking(true);
+
+    try {
+      await deleteLiioFamilyData();
+
+      if (onClose) {
+        onClose();
+      }
+
+      router.replace("/home-01");
+    } finally {
+      setWorking(false);
+    }
+  }
 
   function handleLogout() {
     endParentSession();
@@ -134,18 +181,31 @@ export function AccountContent({
           {t.data}
         </p>
 
-        <div className="account-row">
-          <strong>{t.download}</strong>
+        <button
+          className="account-row account-row--button"
+          type="button"
+          disabled={working}
+          onClick={() => void handleDownload()}
+        >
+          <strong>
+            {working ? t.working : t.download}
+          </strong>
+
           <ChevronRight
             size={24}
             color="#645b6e"
           />
-        </div>
+        </button>
 
-        <div className="account-row account-row--danger">
+        <button
+          className="account-row account-row--button account-row--danger"
+          type="button"
+          disabled={working}
+          onClick={() => void handleDelete()}
+        >
           <strong>{t.delete}</strong>
           <ChevronRight size={24} />
-        </div>
+        </button>
       </section>
 
       <section className="account-section">
