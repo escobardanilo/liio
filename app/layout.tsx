@@ -6,7 +6,7 @@ const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 const fredoka = Fredoka({ variable: "--font-fredoka", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Liio",
+  title: "liio",
   description: "A playful learning companion for curious minds.",
   icons: { icon: "/liio-icon.svg" },
 };
