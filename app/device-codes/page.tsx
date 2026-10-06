@@ -5,6 +5,11 @@ import { liioCopy } from "@/lib/i18n/catalog";
 import { useEffect, useMemo, useState } from "react";
 import { listChildren } from "@/lib/services/family-service";
 import { createFamilyPairingCode } from "@/lib/services/pairing-service";
+import {
+  clearStoredPairingCode,
+  getStoredPairingCode,
+  saveStoredPairingCode,
+} from "@/lib/services/local-state";
 import { useLiioLanguage } from "../components/use-liio-language";
 import { DetailHeader, EmptyState, MobileShell } from "../components/ui";
 
@@ -18,8 +23,6 @@ type StoredCode = {
   code: string;
   expiresAt: string;
 };
-
-const FAMILY_CODE_KEY = "liio-family-device-code";
 
 const copy = liioCopy.deviceCodes;
 
@@ -49,16 +52,18 @@ export default function DeviceCodesPage() {
 
         setChildren(loadedChildren);
 
-        const savedCode =
-          window.localStorage.getItem(FAMILY_CODE_KEY);
+        const parsed =
+          getStoredPairingCode();
 
-        if (savedCode) {
-          const parsed = JSON.parse(savedCode) as StoredCode;
-
-          if (new Date(parsed.expiresAt).getTime() > Date.now()) {
+        if (parsed) {
+          if (
+            new Date(
+              parsed.expiresAt,
+            ).getTime() > Date.now()
+          ) {
             setStoredCode(parsed);
           } else {
-            window.localStorage.removeItem(FAMILY_CODE_KEY);
+            clearStoredPairingCode();
           }
         }
       } finally {
@@ -98,7 +103,7 @@ export default function DeviceCodesPage() {
 
   useEffect(() => {
     if (storedCode && secondsRemaining === 0) {
-      window.localStorage.removeItem(FAMILY_CODE_KEY);
+      clearStoredPairingCode();
       setStoredCode(null);
     }
   }, [secondsRemaining, storedCode]);
@@ -111,10 +116,7 @@ export default function DeviceCodesPage() {
     try {
       const next = await createFamilyPairingCode();
 
-      window.localStorage.setItem(
-        FAMILY_CODE_KEY,
-        JSON.stringify(next),
-      );
+      saveStoredPairingCode(next);
 
       setStoredCode(next);
       setNow(Date.now());
