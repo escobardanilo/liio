@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { endParentSession } from "@/lib/parent-session";
 
 type AuthMethod = "apple" | "google" | "email" | "passkey" | "family";
 
@@ -16,7 +17,6 @@ type ParentProfile = {
 };
 
 const PROFILE_STORAGE_KEY = "liio-parent-profile";
-const SESSION_STORAGE_KEY = "liio-parent-session";
 
 const methodLabels: Record<AuthMethod, string> = {
   apple: "Apple",
@@ -58,8 +58,7 @@ export function AccountContent({
   }, [profile]);
 
   function handleLogout() {
-    window.sessionStorage.removeItem(SESSION_STORAGE_KEY);
-    window.localStorage.removeItem(SESSION_STORAGE_KEY);
+    endParentSession();
 
     if (onClose) {
       onClose();
