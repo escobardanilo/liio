@@ -3,27 +3,13 @@
 import { Minus, Plus } from "lucide-react";
 import { liioCopy } from "@/lib/i18n/catalog";
 import { useEffect, useState } from "react";
+import {
+  defaultTimeSettings,
+  loadTimeSettings,
+  saveTimeSettings,
+  type TimeSettingsRecord,
+} from "@/lib/services/settings-service";
 import { useLiioLanguage } from "./use-liio-language";
-
-type Settings = {
-  minutes: number;
-  quietStart: string;
-  quietEnd: string;
-  homework: boolean;
-  voice: boolean;
-  createWorld: boolean;
-  paused: boolean;
-};
-
-const defaultSettings: Settings = {
-  minutes: 60,
-  quietStart: "20:00",
-  quietEnd: "07:00",
-  homework: true,
-  voice: true,
-  createWorld: false,
-  paused: false,
-};
 
 const copy = liioCopy.timeSettings;
 
@@ -40,33 +26,32 @@ export function TimeSettings({
     `liio-time-settings-${childId}`;
 
   const [settings, setSettings] =
-    useState<Settings>(defaultSettings);
+    useState<TimeSettingsRecord>(defaultTimeSettings);
 
   const [ready, setReady] =
     useState(false);
 
   useEffect(() => {
-    try {
-      const stored =
-        window.localStorage.getItem(storageKey);
+    let cancelled = false;
 
-      if (stored) {
-        setSettings({
-          ...defaultSettings,
-          ...(JSON.parse(
-            stored,
-          ) as Partial<Settings>),
-        });
+    async function load() {
+      const loaded = await loadTimeSettings(childId);
+
+      if (!cancelled) {
+        setSettings(loaded);
+        setReady(true);
       }
-    } catch {
-      setSettings(defaultSettings);
-    } finally {
-      setReady(true);
     }
-  }, [storageKey]);
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [childId]);
 
   function updateSettings(
-    patch: Partial<Settings>,
+    patch: Partial<TimeSettingsRecord>,
   ) {
     setSettings((current) => {
       const next = {
@@ -74,10 +59,7 @@ export function TimeSettings({
         ...patch,
       };
 
-      window.localStorage.setItem(
-        storageKey,
-        JSON.stringify(next),
-      );
+      void saveTimeSettings(childId, next);
 
       return next;
     });
