@@ -58,9 +58,9 @@ export function SpaceGame() {
     if (!event.isPrimary || isActionTarget(event.target)) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     movePlayer(event.clientX, event.clientY);
-  }} onPointerMove={event => { if (!isActionTarget(event.target)) movePlayer(event.clientX, event.clientY); }} aria-label="Liio space dodge game">
+  }} onPointerMove={event => { if (!isActionTarget(event.target)) movePlayer(event.clientX, event.clientY); }} aria-label="liio space dodge game">
     {Array.from({ length: 46 }, (_, index) => <span className="star" key={index} style={{ left: `${(index * 37 + 11) % 100}%`, top: `${(index * 53 + 7) % 100}%`, opacity: .25 + (index % 5) * .13 }} />)}
-    <div className="game__hud"><span>LIIO SPACE</span><span className="game__score">{score.toString().padStart(2, "0")}</span></div>
+    <div className="game__hud"><span>liio SPACE</span><span className="game__score">{score.toString().padStart(2, "0")}</span></div>
     <span className="game__ship" style={{ left: "22%" }} /><span className="game__ship" style={{ right: "18%", top: 112 }} />
     {shots.map(shot => <span key={shot.id} className={`shot ${shot.side ? "shot--side" : ""}`} style={{ left: `${shot.x}%`, top: `${shot.y}%` }} />)}
     <div className="game__player" style={{ left: `${player.x}%`, top: `${player.y}%` }}><Mascot width={62} height={54} idle={false} color="#ffffff" /></div>
