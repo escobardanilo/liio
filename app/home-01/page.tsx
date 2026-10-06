@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ChevronRight, LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Mascot } from "../components/mascot";
 import { MobileShell } from "../components/ui";
 import styles from "./page.module.css";
 
@@ -22,28 +23,28 @@ const copy: Record<
 > = {
   pt: {
     question: "Quem vai entrar?",
-    childTitle: "Entrar no LIIO",
+    childTitle: "Entrar no liio",
     childText: "Para crianças e adolescentes",
     parentTitle: "Área dos responsáveis",
     parentText: "Gerir perfis, permissões e segurança",
   },
   en: {
     question: "Who is signing in?",
-    childTitle: "Enter LIIO",
+    childTitle: "Enter liio",
     childText: "For children and teens",
     parentTitle: "Parents Area",
     parentText: "Manage profiles, permissions and security",
   },
   es: {
     question: "¿Quién va a entrar?",
-    childTitle: "Entrar en LIIO",
+    childTitle: "Entrar en liio",
     childText: "Para niños y adolescentes",
     parentTitle: "Área de responsables",
     parentText: "Gestionar perfiles, permisos y seguridad",
   },
   de: {
     question: "Wer meldet sich an?",
-    childTitle: "LIIO betreten",
+    childTitle: "liio betreten",
     childText: "Für Kinder und Jugendliche",
     parentTitle: "Bereich für Eltern",
     parentText: "Profile, Berechtigungen und Sicherheit verwalten",
@@ -136,19 +137,12 @@ export default function EntryPage() {
             href="/enter-liio"
           >
             <div className={styles.childIllustration} aria-hidden="true">
-              <div className={styles.childAura} />
-              <div className={styles.childBody} />
-              <div className={styles.childNeck} />
-              <div className={styles.childFace} />
-              <div className={styles.childEar} />
-              <div className={styles.childHairBack} />
-              <div className={styles.childHairFront} />
-              <div className={styles.childHairSide} />
-              <div className={styles.childEyeLeft} />
-              <div className={styles.childEyeRight} />
-              <div className={styles.childSmile} />
-              <div className={styles.childArm} />
-              <div className={styles.childHand} />
+              <Mascot
+                width={92}
+                height={80}
+                color="#ffffff"
+                interactive={false}
+              />
             </div>
 
             <div className={styles.cardCopy}>
