@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { liioCopy } from "@/lib/i18n/catalog";
 import { useLiioLanguage } from "../components/use-liio-language";
 import { TimeSettings } from "../components/time-settings";
 import { BackButton, MobileShell } from "../components/ui";
@@ -14,36 +15,8 @@ type ChildProfile = {
 const CHILDREN_KEY = "liio-parent-child-profiles";
 const SELECTED_CHILD_KEY = "liio-selected-child-id";
 
-const copy = {
-  en: {
-    title: "Time & limits",
-    settingsFor: (name: string) => `Settings for ${name}`,
-    noChild: "No child selected",
-    noChildHint:
-      "Add a child profile in the Parents Area before configuring limits.",
-  },
-  pt: {
-    title: "Tempo e limites",
-    settingsFor: (name: string) => `Definições de ${name}`,
-    noChild: "Nenhuma criança selecionada",
-    noChildHint:
-      "Adiciona um perfil de criança na Área dos responsáveis antes de configurares limites.",
-  },
-  es: {
-    title: "Tiempo y límites",
-    settingsFor: (name: string) => `Ajustes de ${name}`,
-    noChild: "Ningún niño seleccionado",
-    noChildHint:
-      "Añade un perfil infantil en el Área de responsables antes de configurar límites.",
-  },
-  de: {
-    title: "Zeit & Limits",
-    settingsFor: (name: string) => `Einstellungen für ${name}`,
-    noChild: "Kein Kind ausgewählt",
-    noChildHint:
-      "Füge im Elternbereich ein Kinderprofil hinzu, bevor du Limits konfigurierst.",
-  },
-} as const;
+const copy = liioCopy.timeLimits;
+
 
 export default function TimeLimitsPage() {
   const { language } = useLiioLanguage();
