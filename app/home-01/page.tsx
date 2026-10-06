@@ -2,9 +2,43 @@
 
 import Link from "next/link";
 import { ChevronRight, LockKeyhole } from "lucide-react";
-import { useLiioLanguage, liioLanguages } from "../components/use-liio-language";
+import {
+  liioLanguages,
+  useLiioLanguage,
+} from "../components/use-liio-language";
 import { MobileShell } from "../components/ui";
 import styles from "./page.module.css";
+
+const copy = {
+  en: {
+    question: "Who is signing in?",
+    childTitle: "Enter liio",
+    childText: "For children and teens",
+    parentTitle: "Parents Area",
+    parentText: "Manage profiles, permissions and security",
+  },
+  pt: {
+    question: "Quem vai entrar?",
+    childTitle: "Entrar no liio",
+    childText: "Para crianças e adolescentes",
+    parentTitle: "Área dos responsáveis",
+    parentText: "Gerir perfis, permissões e segurança",
+  },
+  es: {
+    question: "¿Quién va a entrar?",
+    childTitle: "Entrar en liio",
+    childText: "Para niños y adolescentes",
+    parentTitle: "Área de responsables",
+    parentText: "Gestionar perfiles, permisos y seguridad",
+  },
+  de: {
+    question: "Wer meldet sich an?",
+    childTitle: "liio betreten",
+    childText: "Für Kinder und Jugendliche",
+    parentTitle: "Elternbereich",
+    parentText: "Profile, Berechtigungen und Sicherheit verwalten",
+  },
+} as const;
 
 export default function EntryPage() {
   const { language, setLanguage } = useLiioLanguage();
@@ -39,7 +73,9 @@ export default function EntryPage() {
                 key={item}
                 type="button"
                 className={`${styles.languageButton} ${
-                  language === item ? styles.languageButtonActive : ""
+                  language === item
+                    ? styles.languageButtonActive
+                    : ""
                 }`}
                 onClick={() => setLanguage(item)}
               >
@@ -58,7 +94,10 @@ export default function EntryPage() {
             className={`${styles.card} ${styles.primaryCard}`}
             href="/enter-liio"
           >
-            <div className={styles.childIllustration} aria-hidden="true">
+            <div
+              className={styles.childIllustration}
+              aria-hidden="true"
+            >
               <img
                 className={styles.kidsImage}
                 src="/images/kids-liio.png"
