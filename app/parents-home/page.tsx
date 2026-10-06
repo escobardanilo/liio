@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { isParentSessionActive } from "@/lib/parent-session";
+import { useLiioLanguage } from "../components/use-liio-language";
 import { MobileShell } from "../components/ui";
 import { ParentsDrawer } from "../components/parents-drawer";
 import styles from "./page.module.css";
@@ -34,8 +35,137 @@ const STORAGE_KEY = "liio-parent-child-profiles";
 const SELECTED_CHILD_KEY = "liio-selected-child-id";
 const PROFILE_STORAGE_KEY = "liio-parent-profile";
 
+const copy = {
+  en: {
+    family: "Family",
+    parents: "Parents",
+    noProfiles: "No child profiles yet",
+    addFirst: "{t.addFirst}",
+    addChild: "{t.addChild}",
+    children: "Children",
+    choose: "{t.choose}",
+    add: "Add",
+    years: "years old",
+    profile: "Profile",
+    edit: "{t.edit}",
+    remove: "Remove",
+    manage: "Manage",
+    activity: "Activity",
+    activitySub: "{t.activitySub}",
+    limits: "Time & limits",
+    limitsSub: "{t.limitsSub}",
+    devices: "Devices & codes",
+    devicesSub: "{t.devicesSub}",
+    childProfile: "Child profile",
+    editChild: "Edit child",
+    addChildTitle: "{t.addChild}",
+    name: "Name",
+    age: "Age",
+    hint: "liio currently supports learning profiles from 6 to 15 {t.years}.",
+    cancel: "Cancel",
+    save: "Save changes",
+    create: "Create profile",
+    removeConfirm: (name: string) => `Remove ${name}'s profile from this device?`,
+  },
+  pt: {
+    family: "Família",
+    parents: "Responsáveis",
+    noProfiles: "Ainda não existem perfis de crianças",
+    addFirst: "Adiciona a primeira criança para começar a configurar a experiência no liio.",
+    addChild: "Adicionar criança",
+    children: "Crianças",
+    choose: "Escolhe um perfil para gerir",
+    add: "Adicionar",
+    years: "anos",
+    profile: "Perfil",
+    edit: "Editar perfil",
+    remove: "Remover",
+    manage: "Gerir",
+    activity: "Atividade",
+    activitySub: "Sessões e atividade de aprendizagem",
+    limits: "Tempo e limites",
+    limitsSub: "Limites diários e permissões",
+    devices: "Dispositivos e códigos",
+    devicesSub: "Gerar um código para entrar no liio",
+    childProfile: "Perfil da criança",
+    editChild: "Editar criança",
+    addChildTitle: "Adicionar criança",
+    name: "Nome",
+    age: "Idade",
+    hint: "liio suporta atualmente perfis de aprendizagem dos 6 aos 15 anos.",
+    cancel: "Cancelar",
+    save: "Guardar alterações",
+    create: "Criar perfil",
+    removeConfirm: (name: string) => `Remover o perfil de ${name} deste dispositivo?`,
+  },
+  es: {
+    family: "Familia",
+    parents: "Responsables",
+    noProfiles: "Aún no hay perfiles infantiles",
+    addFirst: "Añade al primer niño para empezar a configurar su experiencia en liio.",
+    addChild: "Añadir niño",
+    children: "Niños",
+    choose: "Elige un perfil para gestionar",
+    add: "Añadir",
+    years: "años",
+    profile: "Perfil",
+    edit: "Editar perfil",
+    remove: "Eliminar",
+    manage: "Gestionar",
+    activity: "Actividad",
+    activitySub: "Sesiones y actividad de aprendizaje",
+    limits: "Tiempo y límites",
+    limitsSub: "Límites diarios y permisos",
+    devices: "Dispositivos y códigos",
+    devicesSub: "Generar un código para entrar en liio",
+    childProfile: "Perfil infantil",
+    editChild: "Editar niño",
+    addChildTitle: "Añadir niño",
+    name: "Nombre",
+    age: "Edad",
+    hint: "liio admite actualmente perfiles de aprendizaje de 6 a 15 años.",
+    cancel: "Cancelar",
+    save: "Guardar cambios",
+    create: "Crear perfil",
+    removeConfirm: (name: string) => `¿Eliminar el perfil de ${name} de este dispositivo?`,
+  },
+  de: {
+    family: "Familie",
+    parents: "Eltern",
+    noProfiles: "Noch keine Kinderprofile",
+    addFirst: "Füge das erste Kind hinzu, um die liio-Erfahrung einzurichten.",
+    addChild: "Kind hinzufügen",
+    children: "Kinder",
+    choose: "Profil zum Verwalten auswählen",
+    add: "Hinzufügen",
+    years: "Jahre alt",
+    profile: "Profil",
+    edit: "Profil bearbeiten",
+    remove: "Entfernen",
+    manage: "Verwalten",
+    activity: "Aktivität",
+    activitySub: "Sitzungen und Lernaktivität",
+    limits: "Zeit & Limits",
+    limitsSub: "Tägliche Limits und Berechtigungen",
+    devices: "Geräte & Codes",
+    devicesSub: "Code zum Betreten von liio erzeugen",
+    childProfile: "Kinderprofil",
+    editChild: "Kind bearbeiten",
+    addChildTitle: "Kind hinzufügen",
+    name: "Name",
+    age: "Alter",
+    hint: "liio unterstützt derzeit Lernprofile von 6 bis 15 Jahren.",
+    cancel: "Abbrechen",
+    save: "Änderungen speichern",
+    create: "Profil erstellen",
+    removeConfirm: (name: string) => `Profil von ${name} von diesem Gerät entfernen?`,
+  },
+} as const;
+
 export default function ParentsHomePage() {
   const router = useRouter();
+  const { language } = useLiioLanguage();
+  const t = copy[language];
 
   const [profiles, setProfiles] = useState<ChildProfile[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -174,7 +304,7 @@ export default function ParentsHomePage() {
 
   function removeProfile(profile: ChildProfile) {
     const confirmed = window.confirm(
-      `Remove ${profile.name}'s profile from this device?`,
+      t.removeConfirm(profile.name),
     );
 
     if (!confirmed) {
@@ -218,8 +348,8 @@ export default function ParentsHomePage() {
       <section className={styles.page}>
         <header className={styles.header}>
           <div>
-            <p className={styles.eyebrow}>Family</p>
-            <h1>Parents</h1>
+            <p className={styles.eyebrow}>{t.family}</p>
+            <h1>{t.parents}</h1>
           </div>
 
           <ParentsDrawer />
@@ -231,10 +361,10 @@ export default function ParentsHomePage() {
               <UserRound size={36} strokeWidth={1.8} />
             </div>
 
-            <h2>No child profiles yet</h2>
+            <h2>{t.noProfiles}</h2>
 
             <p>
-              Add your first child to start setting up their liio experience.
+              {t.addFirst}
             </p>
 
             <button
@@ -243,7 +373,7 @@ export default function ParentsHomePage() {
               onClick={openCreateProfile}
             >
               <Plus size={20} strokeWidth={2.4} />
-              Add child
+              {t.addChild}
             </button>
           </section>
         ) : (
@@ -251,9 +381,9 @@ export default function ParentsHomePage() {
             <section className={styles.profilesSection}>
               <div className={styles.sectionHeader}>
                 <div>
-                  <p className={styles.sectionLabel}>Children</p>
+                  <p className={styles.sectionLabel}>{t.children}</p>
                   <span className={styles.sectionDescription}>
-                    Choose a profile to manage
+                    {t.choose}
                   </span>
                 </div>
 
@@ -285,7 +415,7 @@ export default function ParentsHomePage() {
 
                       <span className={styles.profileCopy}>
                         <strong>{profile.name}</strong>
-                        <small>{profile.age} years old</small>
+                        <small>{profile.age} {t.years}</small>
                       </span>
                     </button>
                   );
@@ -298,9 +428,9 @@ export default function ParentsHomePage() {
                 <section className={styles.profileDetails}>
                   <div className={styles.profileDetailsTop}>
                     <div>
-                      <p className={styles.sectionLabel}>Profile</p>
+                      <p className={styles.sectionLabel}>{t.profile}</p>
                       <h2>{selectedProfile.name}</h2>
-                      <span>{selectedProfile.age} years old</span>
+                      <span>{selectedProfile.age} {t.years}</span>
                     </div>
 
                     <div className={styles.profileAvatarLarge}>
@@ -314,7 +444,7 @@ export default function ParentsHomePage() {
                       onClick={() => openEditProfile(selectedProfile)}
                     >
                       <Pencil size={19} strokeWidth={2.2} />
-                      Edit profile
+                      {t.edit}
                     </button>
 
                     <button
@@ -329,7 +459,7 @@ export default function ParentsHomePage() {
                 </section>
 
                 <section className={styles.manageSection}>
-                  <p className={styles.sectionLabel}>Manage</p>
+                  <p className={styles.sectionLabel}>{t.manage}</p>
 
                   <nav className={styles.manageList}>
                     <Link className={styles.manageRow} href="/activity">
@@ -338,8 +468,8 @@ export default function ParentsHomePage() {
                       </span>
 
                       <span className={styles.manageCopy}>
-                        <strong>Activity</strong>
-                        <small>Sessions and learning activity</small>
+                        <strong>{t.activity}</strong>
+                        <small>{t.activitySub}</small>
                       </span>
 
                       <ChevronRight size={22} strokeWidth={2.1} />
@@ -351,8 +481,8 @@ export default function ParentsHomePage() {
                       </span>
 
                       <span className={styles.manageCopy}>
-                        <strong>Time &amp; limits</strong>
-                        <small>Daily limits and permissions</small>
+                        <strong>{t.limits}</strong>
+                        <small>{t.limitsSub}</small>
                       </span>
 
                       <ChevronRight size={22} strokeWidth={2.1} />
@@ -364,8 +494,8 @@ export default function ParentsHomePage() {
                       </span>
 
                       <span className={styles.manageCopy}>
-                        <strong>Devices &amp; codes</strong>
-                        <small>Generate a code to enter liio</small>
+                        <strong>{t.devices}</strong>
+                        <small>{t.devicesSub}</small>
                       </span>
 
                       <ChevronRight size={22} strokeWidth={2.1} />
@@ -387,10 +517,10 @@ export default function ParentsHomePage() {
             >
               <div className={styles.modalHeader}>
                 <div>
-                  <p className={styles.sectionLabel}>Child profile</p>
+                  <p className={styles.sectionLabel}>{t.childProfile}</p>
 
                   <h2 id="child-profile-title">
-                    {editingId ? "Edit child" : "Add child"}
+                    {editingId ? "Edit child" : "{t.addChild}"}
                   </h2>
                 </div>
 
@@ -406,7 +536,7 @@ export default function ParentsHomePage() {
 
               <form className={styles.form} onSubmit={handleSubmit}>
                 <label>
-                  <span>Name</span>
+                  <span>{t.name}</span>
 
                   <input
                     type="text"
@@ -424,7 +554,7 @@ export default function ParentsHomePage() {
                 </label>
 
                 <label>
-                  <span>Age</span>
+                  <span>{t.age}</span>
 
                   <input
                     type="number"
@@ -456,7 +586,7 @@ export default function ParentsHomePage() {
                   </button>
 
                   <button className={styles.saveButton} type="submit">
-                    {editingId ? "Save changes" : "Create profile"}
+                    {editingId ? t.save : t.create}
                   </button>
                 </div>
               </form>
