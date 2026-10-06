@@ -22,6 +22,11 @@ import {
   listChildren,
   upsertChild,
 } from "@/lib/services/family-service";
+import {
+  getParentProfile,
+  getSelectedChildId,
+  setSelectedChildId,
+} from "@/lib/services/local-state";
 import { useLiioLanguage } from "../components/use-liio-language";
 import { MobileShell } from "../components/ui";
 import { ParentsDrawer } from "../components/parents-drawer";
@@ -38,9 +43,6 @@ type ProfileForm = {
   age: string;
 };
 
-const STORAGE_KEY = "liio-parent-child-profiles";
-const SELECTED_CHILD_KEY = "liio-selected-child-id";
-const PROFILE_STORAGE_KEY = "liio-parent-profile";
 
 const copy = liioCopy.parentsHome;
 
@@ -65,21 +67,12 @@ export default function ParentsHomePage() {
 
     async function loadParentsArea() {
       try {
-        const storedProfile =
-          window.localStorage.getItem(PROFILE_STORAGE_KEY);
+        const parentProfile = getParentProfile();
 
-        if (!storedProfile || !isParentSessionActive()) {
+        if (!parentProfile || !isParentSessionActive()) {
           router.replace("/responsible-area");
           return;
         }
-
-        const parentProfile = JSON.parse(storedProfile) as {
-          id: string;
-          name: string;
-          method: "apple" | "google" | "email" | "passkey" | "family";
-          createdAt: string;
-          updatedAt: string;
-        };
 
         await ensureFamilyIdentity(parentProfile, language);
 
@@ -92,7 +85,7 @@ export default function ParentsHomePage() {
         setProfiles(loadedProfiles);
 
         const storedSelectedId =
-          window.localStorage.getItem(SELECTED_CHILD_KEY);
+          getSelectedChildId();
 
         const selectedStillExists = loadedProfiles.some(
           (profile) => profile.id === storedSelectedId,
@@ -105,12 +98,11 @@ export default function ParentsHomePage() {
         setSelectedId(initialSelectedId);
 
         if (initialSelectedId) {
-          window.localStorage.setItem(
-            SELECTED_CHILD_KEY,
+          setSelectedChildId(
             initialSelectedId,
           );
         } else {
-          window.localStorage.removeItem(SELECTED_CHILD_KEY);
+          setSelectedChildId(null);
         }
 
         setReady(true);
@@ -138,7 +130,7 @@ export default function ParentsHomePage() {
 
   function selectProfile(id: string) {
     setSelectedId(id);
-    window.localStorage.setItem(SELECTED_CHILD_KEY, id);
+    setSelectedChildId(id);
   }
 
   function openCreateProfile() {
@@ -234,14 +226,11 @@ export default function ParentsHomePage() {
         setSelectedId(nextSelectedId);
 
         if (nextSelectedId) {
-          window.localStorage.setItem(
-            SELECTED_CHILD_KEY,
+          setSelectedChildId(
             nextSelectedId,
           );
         } else {
-          window.localStorage.removeItem(
-            SELECTED_CHILD_KEY,
-          );
+          setSelectedChildId(null);
         }
       }
 
