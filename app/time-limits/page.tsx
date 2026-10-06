@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { liioCopy } from "@/lib/i18n/catalog";
+import { listChildren } from "@/lib/services/family-service";
 import { useLiioLanguage } from "../components/use-liio-language";
 import { TimeSettings } from "../components/time-settings";
 import { BackButton, MobileShell } from "../components/ui";
@@ -12,7 +13,6 @@ type ChildProfile = {
   age: number;
 };
 
-const CHILDREN_KEY = "liio-parent-child-profiles";
 const SELECTED_CHILD_KEY = "liio-selected-child-id";
 
 const copy = liioCopy.timeLimits;
@@ -27,19 +27,16 @@ export default function TimeLimitsPage() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    try {
-      const storedChildren =
-        window.localStorage.getItem(CHILDREN_KEY);
+    let cancelled = false;
 
-      const selectedId =
-        window.localStorage.getItem(
-          SELECTED_CHILD_KEY,
-        );
+    async function load() {
+      try {
+        const children = await listChildren();
 
-      if (storedChildren) {
-        const children = JSON.parse(
-          storedChildren,
-        ) as ChildProfile[];
+        const selectedId =
+          window.localStorage.getItem(
+            SELECTED_CHILD_KEY,
+          );
 
         const selectedChild =
           children.find(
@@ -49,13 +46,25 @@ export default function TimeLimitsPage() {
           children[0] ??
           null;
 
-        setChild(selectedChild);
+        if (!cancelled) {
+          setChild(selectedChild);
+        }
+      } catch {
+        if (!cancelled) {
+          setChild(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setReady(true);
+        }
       }
-    } catch {
-      setChild(null);
-    } finally {
-      setReady(true);
     }
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (!ready) {
