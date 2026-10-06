@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { KeyRound, Mail, X } from "lucide-react";
 import { BackButton, Brand, MobileShell } from "../components/ui";
@@ -74,6 +74,31 @@ export default function ResponsibleAreaPage() {
 
   const [selectedMethod, setSelectedMethod] = useState<AuthMethod | null>(null);
   const [name, setName] = useState("");
+  const [checkingSession, setCheckingSession] = useState(true);
+
+  useEffect(() => {
+    try {
+      const storedProfile = window.localStorage.getItem(PROFILE_STORAGE_KEY);
+      const activeSession =
+        window.sessionStorage.getItem(SESSION_STORAGE_KEY) === "active";
+      const legacySession =
+        window.localStorage.getItem(SESSION_STORAGE_KEY) === "active";
+
+      if (storedProfile && (activeSession || legacySession)) {
+        if (legacySession) {
+          window.sessionStorage.setItem(SESSION_STORAGE_KEY, "active");
+          window.localStorage.removeItem(SESSION_STORAGE_KEY);
+        }
+
+        router.replace("/parents-home");
+        return;
+      }
+    } catch {
+      // If storage is unavailable, show the prototype sign-in screen.
+    }
+
+    setCheckingSession(false);
+  }, [router]);
 
   function openProfileSetup(method: AuthMethod) {
     let savedName = "";
@@ -133,9 +158,18 @@ export default function ResponsibleAreaPage() {
       JSON.stringify(profile),
     );
 
-    window.localStorage.setItem(SESSION_STORAGE_KEY, "active");
+    window.localStorage.removeItem(SESSION_STORAGE_KEY);
+    window.sessionStorage.setItem(SESSION_STORAGE_KEY, "active");
 
     router.push("/parents-home");
+  }
+
+  if (checkingSession) {
+    return (
+      <MobileShell className={styles.shell}>
+        <section className={styles.page} />
+      </MobileShell>
+    );
   }
 
   return (
