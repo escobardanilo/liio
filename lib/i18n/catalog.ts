@@ -597,6 +597,8 @@ export const liioCopy = {
       help: "Help",
       terms: "Terms & Privacy",
       logout: "Log out",
+      deleteConfirm: "Delete all liio family data from this prototype? This cannot be undone.",
+      working: "Working…",
     },
     pt: {
       account: "Conta",
@@ -612,6 +614,8 @@ export const liioCopy = {
       help: "Ajuda",
       terms: "Termos e Privacidade",
       logout: "Terminar sessão",
+      deleteConfirm: "Eliminar todos os dados da família no liio? Esta ação não pode ser desfeita.",
+      working: "A processar…",
     },
     es: {
       account: "Cuenta",
@@ -627,6 +631,8 @@ export const liioCopy = {
       help: "Ayuda",
       terms: "Términos y Privacidad",
       logout: "Cerrar sesión",
+      deleteConfirm: "¿Eliminar todos los datos de la familia en liio? Esta acción no se puede deshacer.",
+      working: "Procesando…",
     },
     de: {
       account: "Konto",
@@ -642,6 +648,8 @@ export const liioCopy = {
       help: "Hilfe",
       terms: "Bedingungen & Datenschutz",
       logout: "Abmelden",
+      deleteConfirm: "Alle liio-Familiendaten in diesem Prototyp löschen? Dies kann nicht rückgängig gemacht werden.",
+      working: "Wird verarbeitet…",
     },
   },
 
