@@ -10,6 +10,7 @@ export const liioLanguages: LiioLanguage[] = ["pt", "en", "es", "de"];
 
 export function useLiioLanguage() {
   const [language, setLanguageState] = useState<LiioLanguage>("en");
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     try {
@@ -22,6 +23,8 @@ export function useLiioLanguage() {
       }
     } catch {
       setLanguageState("en");
+    } finally {
+      setReady(true);
     }
   }, []);
 
@@ -68,5 +71,6 @@ export function useLiioLanguage() {
   return {
     language,
     setLanguage,
+    ready,
   };
 }
