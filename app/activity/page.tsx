@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { liioCopy } from "@/lib/i18n/catalog";
 import { listActivity, type ActivityEvent } from "@/lib/services/activity-service";
 import { listChildren } from "@/lib/services/family-service";
+import { getSelectedChildId } from "@/lib/services/local-state";
 import { useLiioLanguage } from "../components/use-liio-language";
 import { DetailHeader, EmptyState, MobileShell } from "../components/ui";
 
@@ -13,7 +14,6 @@ type ChildProfile = {
   age: number;
 };
 
-const SELECTED_CHILD_KEY = "liio-selected-child-id";
 const copy = liioCopy.activity;
 
 function activityTitle(
@@ -65,9 +65,7 @@ export default function ActivityPage() {
       try {
         const children = await listChildren();
         const selectedId =
-          window.localStorage.getItem(
-            SELECTED_CHILD_KEY,
-          );
+          getSelectedChildId();
 
         const selectedChild =
           children.find(
