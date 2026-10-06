@@ -68,7 +68,7 @@ export default function EnterLiioPage() {
       setStep("profile");
       setError("");
     } catch {
-      setError("Liio could not load the family profiles.");
+      setError("liio could not load the family profiles.");
     }
   }
 
@@ -109,7 +109,7 @@ export default function EnterLiioPage() {
                 <KeyRound size={34} strokeWidth={2} />
               </div>
 
-              <h1>Enter LIIO</h1>
+              <h1>Enter liio</h1>
 
               <p>
                 Ask a parent or family member for the code generated in
@@ -155,10 +155,10 @@ export default function EnterLiioPage() {
                 <UserRound size={34} strokeWidth={2} />
               </div>
 
-              <h1>Who&apos;s using LIIO?</h1>
+              <h1>Who&apos;s using liio?</h1>
 
               <p>
-                Choose the child profile that will use Liio on this device.
+                Choose the child profile that will use liio on this device.
               </p>
 
               <div className={styles.profileList}>
