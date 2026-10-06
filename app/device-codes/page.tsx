@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { listChildren } from "@/lib/services/family-service";
 import { createFamilyPairingCode } from "@/lib/services/pairing-service";
 import { useLiioLanguage } from "../components/use-liio-language";
-import { BackButton, MobileShell } from "../components/ui";
+import { DetailHeader, EmptyState, MobileShell } from "../components/ui";
 
 type ChildProfile = {
   id: string;
@@ -163,13 +163,14 @@ export default function DeviceCodesPage() {
   return (
     <MobileShell>
       <section className="detail-page device-page">
-        <BackButton href="/parents-home" />
-
-        <h1>{t.title}</h1>
+        <DetailHeader
+          href="/parents-home"
+          title={t.title}
+          subtitle={children.length > 0 ? t.subtitle : undefined}
+        />
 
         {children.length > 0 ? (
           <>
-            <p className="detail-subtitle">{t.subtitle}</p>
 
             <div
               className="qr-card"
@@ -238,10 +239,11 @@ export default function DeviceCodesPage() {
             )}
           </>
         ) : (
-          <section className="privacy-card card">
-            <strong>{t.noProfiles}</strong>
-            <span>{t.noProfilesHint}</span>
-          </section>
+          <EmptyState
+            icon={<Smartphone size={28} strokeWidth={1.9} />}
+            title={t.noProfiles}
+            description={t.noProfilesHint}
+          />
         )}
       </section>
     </MobileShell>
