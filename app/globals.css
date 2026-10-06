@@ -199,6 +199,8 @@ button { border: 0; }
 .account-profile-card__copy span { margin-top: 5px; overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .account-section { margin-top: 31px; }
 .account-row { display: flex; min-height: 74px; align-items: center; justify-content: space-between; border-bottom: 1px solid #dad6d0; font-size: 17px; }
+.account-row--button { width: 100%; padding: 0; color: inherit; background: transparent; text-align: left; cursor: pointer; }
+.account-row--button:active { opacity: .72; }
 .account-row__stack strong, .account-row__stack span { display: block; }
 .account-row__stack span { margin-top: 6px; color: var(--muted); font-size: 13px; }
 .account-row--danger { color: var(--coral); }
