@@ -9,6 +9,7 @@ import {
   startParentSession,
 } from "@/lib/parent-session";
 import { ensureFamilyIdentity } from "@/lib/services/family-service";
+import { getParentProfile, saveParentProfile } from "@/lib/services/local-state";
 import { useLiioLanguage } from "../components/use-liio-language";
 import { BackButton, Brand, MobileShell } from "../components/ui";
 import styles from "./page.module.css";
@@ -22,8 +23,6 @@ type ParentProfile = {
   createdAt: string;
   updatedAt: string;
 };
-
-const PROFILE_STORAGE_KEY = "liio-parent-profile";
 
 const copy = liioCopy.parentsAuth;
 
@@ -89,7 +88,7 @@ export default function ResponsibleAreaPage() {
 
   useEffect(() => {
     try {
-      const storedProfile = window.localStorage.getItem(PROFILE_STORAGE_KEY);
+      const storedProfile = getParentProfile();
       const hasProfile = Boolean(storedProfile);
 
       if (restoreParentSessionIfAllowed(hasProfile)) {
@@ -107,10 +106,9 @@ export default function ResponsibleAreaPage() {
     let savedName = "";
 
     try {
-      const storedProfile = window.localStorage.getItem(PROFILE_STORAGE_KEY);
+      const profile = getParentProfile();
 
-      if (storedProfile) {
-        const profile = JSON.parse(storedProfile) as ParentProfile;
+      if (profile) {
         savedName = profile.name ?? "";
       }
     } catch {
@@ -137,11 +135,7 @@ export default function ResponsibleAreaPage() {
     let existingProfile: ParentProfile | null = null;
 
     try {
-      const storedProfile = window.localStorage.getItem(PROFILE_STORAGE_KEY);
-
-      if (storedProfile) {
-        existingProfile = JSON.parse(storedProfile) as ParentProfile;
-      }
+      existingProfile = getParentProfile();
     } catch {
       existingProfile = null;
     }
@@ -156,10 +150,7 @@ export default function ResponsibleAreaPage() {
       updatedAt: now,
     };
 
-    window.localStorage.setItem(
-      PROFILE_STORAGE_KEY,
-      JSON.stringify(profile),
-    );
+    saveParentProfile(profile);
 
     await ensureFamilyIdentity(profile, language);
 
