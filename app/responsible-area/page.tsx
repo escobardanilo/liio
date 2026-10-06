@@ -26,26 +26,26 @@ const PROFILE_STORAGE_KEY = "liio-parent-profile";
 const copy = {
   en: {
     title: "Parents Area",
-    subtitle: "{t.subtitle}",
+    subtitle: "Sign in to create and manage profiles",
     apple: "Continue with Apple",
     google: "Continue with Google",
     email: "Sign in with e-mail",
     passkey: "Use passkey",
-    createFamily: "{t.createFamily}",
-    createProfile: "{t.createProfile}",
-    description: "{t.description}",
+    createFamily: "Create family",
+    createProfile: "Create your profile",
+    description: "Tell liio how we should identify you in the Parents Area.",
     yourName: "Your name",
     placeholder: "Your name",
-    prototype: "{t.prototype}",
+    prototype: "Prototype access — no external account will be connected.",
     continue: "Continue",
   },
   pt: {
     title: "Área dos responsáveis",
     subtitle: "Entra para criar e gerir perfis",
-    apple: "{t.apple}",
-    google: "{t.google}",
-    email: "{t.email}",
-    passkey: "{t.passkey}",
+    apple: "Continuar com Apple",
+    google: "Continuar com Google",
+    email: "Entrar com e-mail",
+    passkey: "Usar passkey",
     createFamily: "Criar família",
     createProfile: "Criar o teu perfil",
     description: "Diz ao liio como devemos identificar-te na Área dos responsáveis.",
@@ -60,7 +60,7 @@ const copy = {
     apple: "Continuar con Apple",
     google: "Continuar con Google",
     email: "Entrar con e-mail",
-    passkey: "{t.passkey}",
+    passkey: "Usar passkey",
     createFamily: "Crear familia",
     createProfile: "Crear tu perfil",
     description: "Dile a liio cómo debemos identificarte en el Área de responsables.",
@@ -367,7 +367,7 @@ export default function ResponsibleAreaPage() {
                   type="submit"
                   disabled={!name.trim()}
                 >
-                  Continue
+                  {t.continue}
                 </button>
               </form>
             </section>
