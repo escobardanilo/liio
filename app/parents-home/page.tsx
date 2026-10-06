@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { isParentSessionActive } from "@/lib/parent-session";
 import { MobileShell } from "../components/ui";
 import { ParentsDrawer } from "../components/parents-drawer";
 import styles from "./page.module.css";
@@ -32,7 +33,6 @@ type ProfileForm = {
 const STORAGE_KEY = "liio-parent-child-profiles";
 const SELECTED_CHILD_KEY = "liio-selected-child-id";
 const PROFILE_STORAGE_KEY = "liio-parent-profile";
-const SESSION_STORAGE_KEY = "liio-parent-session";
 
 export default function ParentsHomePage() {
   const router = useRouter();
@@ -50,19 +50,10 @@ export default function ParentsHomePage() {
   useEffect(() => {
     try {
       const storedProfile = window.localStorage.getItem(PROFILE_STORAGE_KEY);
-      const activeSession =
-        window.sessionStorage.getItem(SESSION_STORAGE_KEY) === "active";
-      const legacySession =
-        window.localStorage.getItem(SESSION_STORAGE_KEY) === "active";
 
-      if (!storedProfile || (!activeSession && !legacySession)) {
+      if (!storedProfile || !isParentSessionActive()) {
         router.replace("/responsible-area");
         return;
-      }
-
-      if (legacySession) {
-        window.sessionStorage.setItem(SESSION_STORAGE_KEY, "active");
-        window.localStorage.removeItem(SESSION_STORAGE_KEY);
       }
 
       const stored = window.localStorage.getItem(STORAGE_KEY);
