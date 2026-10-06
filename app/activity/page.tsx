@@ -54,6 +54,8 @@ export default function ActivityPage() {
     useState<ChildProfile | null>(null);
   const [events, setEvents] =
     useState<ActivityEvent[]>([]);
+  const [range, setRange] =
+    useState<"today" | "week">("today");
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -110,8 +112,28 @@ export default function ActivityPage() {
     };
   }, []);
 
+  const visibleEvents = useMemo(() => {
+    const now = new Date();
+    const start =
+      range === "today"
+        ? new Date(
+            now.getFullYear(),
+            now.getMonth(),
+            now.getDate(),
+          )
+        : new Date(
+            now.getTime() -
+              6 * 24 * 60 * 60 * 1000,
+          );
+
+    return events.filter(
+      (event) =>
+        new Date(event.createdAt) >= start,
+    );
+  }, [events, range]);
+
   const totals = useMemo(() => {
-    const totalDurationMs = events.reduce(
+    const totalDurationMs = visibleEvents.reduce(
       (total, event) =>
         total + (event.durationMs ?? 0),
       0,
@@ -121,18 +143,18 @@ export default function ActivityPage() {
       minutes: Math.floor(
         totalDurationMs / 60_000,
       ),
-      questions: events.filter(
+      questions: visibleEvents.filter(
         (event) =>
           event.eventType ===
           "homework_response",
       ).length,
-      worlds: events.filter(
+      worlds: visibleEvents.filter(
         (event) =>
           event.eventType ===
           "world_created",
       ).length,
     };
-  }, [events]);
+  }, [visibleEvents]);
 
   if (!ready) {
     return (
@@ -154,15 +176,25 @@ export default function ActivityPage() {
           <>
             <div className="segmented">
               <button
-                className="segment segment--active"
+                className={`segment ${
+                  range === "today"
+                    ? "segment--active"
+                    : ""
+                }`}
                 type="button"
+                onClick={() => setRange("today")}
               >
                 {t.today}
               </button>
 
               <button
-                className="segment"
+                className={`segment ${
+                  range === "week"
+                    ? "segment--active"
+                    : ""
+                }`}
                 type="button"
+                onClick={() => setRange("week")}
               >
                 {t.week}
               </button>
@@ -200,7 +232,7 @@ export default function ActivityPage() {
                 {t.sessions}
               </p>
 
-              {events.length === 0 ? (
+              {visibleEvents.length === 0 ? (
                 <section className="privacy-card card">
                   <strong>
                     {t.noActivity}
@@ -212,7 +244,7 @@ export default function ActivityPage() {
                   </span>
                 </section>
               ) : (
-                events.map((event) => (
+                visibleEvents.map((event) => (
                   <div
                     className="session-row"
                     key={event.id}
