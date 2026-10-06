@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ChevronRight, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { endParentSession } from "@/lib/parent-session";
+import { getParentProfile } from "@/lib/services/local-state";
 import { useLiioLanguage } from "./use-liio-language";
 
 type AuthMethod = "apple" | "google" | "email" | "passkey" | "family";
@@ -17,8 +18,6 @@ type ParentProfile = {
   createdAt: string;
   updatedAt: string;
 };
-
-const PROFILE_STORAGE_KEY = "liio-parent-profile";
 
 const methodLabels: Record<AuthMethod, string> = {
   apple: "Apple",
@@ -46,16 +45,10 @@ export function AccountContent({
   useEffect(() => {
     try {
       const storedProfile =
-        window.localStorage.getItem(
-          PROFILE_STORAGE_KEY,
-        );
+        getParentProfile();
 
       if (storedProfile) {
-        setProfile(
-          JSON.parse(
-            storedProfile,
-          ) as ParentProfile,
-        );
+        setProfile(storedProfile);
       }
     } catch {
       setProfile(null);
