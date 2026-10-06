@@ -7,6 +7,7 @@ import {
   restoreParentSessionIfAllowed,
   startParentSession,
 } from "@/lib/parent-session";
+import { ensureFamilyIdentity } from "@/lib/services/family-service";
 import { useLiioLanguage } from "../components/use-liio-language";
 import { BackButton, Brand, MobileShell } from "../components/ui";
 import styles from "./page.module.css";
@@ -183,7 +184,7 @@ export default function ResponsibleAreaPage() {
     setSelectedMethod(null);
   }
 
-  function handleContinue(event: FormEvent<HTMLFormElement>) {
+  async function handleContinue(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const normalizedName = name.trim();
@@ -218,6 +219,8 @@ export default function ResponsibleAreaPage() {
       PROFILE_STORAGE_KEY,
       JSON.stringify(profile),
     );
+
+    await ensureFamilyIdentity(profile, language);
 
     startParentSession();
     router.push("/parents-home");
