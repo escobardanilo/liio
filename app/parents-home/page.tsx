@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Activity,
   ChevronRight,
@@ -30,8 +31,12 @@ type ProfileForm = {
 
 const STORAGE_KEY = "liio-parent-child-profiles";
 const SELECTED_CHILD_KEY = "liio-selected-child-id";
+const PROFILE_STORAGE_KEY = "liio-parent-profile";
+const SESSION_STORAGE_KEY = "liio-parent-session";
 
 export default function ParentsHomePage() {
+  const router = useRouter();
+
   const [profiles, setProfiles] = useState<ChildProfile[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -44,6 +49,22 @@ export default function ParentsHomePage() {
 
   useEffect(() => {
     try {
+      const storedProfile = window.localStorage.getItem(PROFILE_STORAGE_KEY);
+      const activeSession =
+        window.sessionStorage.getItem(SESSION_STORAGE_KEY) === "active";
+      const legacySession =
+        window.localStorage.getItem(SESSION_STORAGE_KEY) === "active";
+
+      if (!storedProfile || (!activeSession && !legacySession)) {
+        router.replace("/responsible-area");
+        return;
+      }
+
+      if (legacySession) {
+        window.sessionStorage.setItem(SESSION_STORAGE_KEY, "active");
+        window.localStorage.removeItem(SESSION_STORAGE_KEY);
+      }
+
       const stored = window.localStorage.getItem(STORAGE_KEY);
       const storedSelectedId =
         window.localStorage.getItem(SELECTED_CHILD_KEY);
@@ -72,13 +93,12 @@ export default function ParentsHomePage() {
           }
         }
       }
-    } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
-      window.localStorage.removeItem(SELECTED_CHILD_KEY);
-    } finally {
+
       setReady(true);
+    } catch {
+      router.replace("/responsible-area");
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     if (!ready) {
