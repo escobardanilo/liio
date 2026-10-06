@@ -5,7 +5,7 @@ import { liioCopy } from "@/lib/i18n/catalog";
 import { listChildren } from "@/lib/services/family-service";
 import { useLiioLanguage } from "../components/use-liio-language";
 import { TimeSettings } from "../components/time-settings";
-import { BackButton, MobileShell } from "../components/ui";
+import { DetailHeader, EmptyState, MobileShell } from "../components/ui";
 
 type ChildProfile = {
   id: string;
@@ -78,25 +78,23 @@ export default function TimeLimitsPage() {
   return (
     <MobileShell>
       <section className="detail-page">
-        <BackButton href="/parents-home" />
-
-        <h1>{t.title}</h1>
+        <DetailHeader
+          href="/parents-home"
+          title={t.title}
+          subtitle={child ? t.settingsFor(child.name) : undefined}
+        />
 
         {child ? (
           <>
-            <p className="detail-subtitle">
-              {t.settingsFor(child.name)}
-            </p>
-
             <div style={{ marginTop: 28 }}>
               <TimeSettings childId={child.id} />
             </div>
           </>
         ) : (
-          <section className="privacy-card card">
-            <strong>{t.noChild}</strong>
-            <span>{t.noChildHint}</span>
-          </section>
+          <EmptyState
+            title={t.noChild}
+            description={t.noChildHint}
+          />
         )}
       </section>
     </MobileShell>
