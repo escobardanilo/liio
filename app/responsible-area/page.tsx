@@ -271,7 +271,7 @@ export default function ResponsibleAreaPage() {
               </div>
 
               <p className={styles.modalDescription}>
-                Tell Liio how we should identify you in the Parents Area.
+                Tell liio how we should identify you in the Parents Area.
               </p>
 
               <form
