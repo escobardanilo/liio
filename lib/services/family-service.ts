@@ -55,6 +55,27 @@ export async function ensureFamilyIdentity(
   const ownerSecret =
     existing?.ownerSecret ?? createOpaqueSecret();
 
+  if (existing && supabase) {
+    const { error: existingRemoteError } =
+      await supabase.rpc(
+        "liio_list_children_owner",
+        {
+          p_family_id: existing.familyId,
+          p_owner_secret: ownerSecret,
+        },
+      );
+
+    if (!existingRemoteError) {
+      const remoteIdentity: FamilyIdentity = {
+        ...existing,
+        mode: "remote",
+      };
+
+      writeJson(FAMILY_KEY, remoteIdentity);
+      return remoteIdentity;
+    }
+  }
+
   if (supabase) {
     const { data, error } = await supabase.rpc(
       "liio_create_family",
