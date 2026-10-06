@@ -17,6 +17,7 @@ export type ChildProfile = {
 export type FamilyIdentity = {
   familyId: string;
   ownerSecret: string;
+  mode?: "local" | "remote";
 };
 
 export type DeviceIdentity = {
