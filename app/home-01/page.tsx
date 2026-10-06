@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { liioCopy } from "@/lib/i18n/catalog";
 import { ChevronRight, LockKeyhole } from "lucide-react";
 import {
   liioLanguages,
@@ -9,36 +10,8 @@ import {
 import { MobileShell } from "../components/ui";
 import styles from "./page.module.css";
 
-const copy = {
-  en: {
-    question: "Who is signing in?",
-    childTitle: "Enter liio",
-    childText: "For children and teens",
-    parentTitle: "Parents Area",
-    parentText: "Manage profiles, permissions and security",
-  },
-  pt: {
-    question: "Quem vai entrar?",
-    childTitle: "Entrar no liio",
-    childText: "Para crianças e adolescentes",
-    parentTitle: "Área dos responsáveis",
-    parentText: "Gerir perfis, permissões e segurança",
-  },
-  es: {
-    question: "¿Quién va a entrar?",
-    childTitle: "Entrar en liio",
-    childText: "Para niños y adolescentes",
-    parentTitle: "Área de responsables",
-    parentText: "Gestionar perfiles, permisos y seguridad",
-  },
-  de: {
-    question: "Wer meldet sich an?",
-    childTitle: "liio betreten",
-    childText: "Für Kinder und Jugendliche",
-    parentTitle: "Elternbereich",
-    parentText: "Profile, Berechtigungen und Sicherheit verwalten",
-  },
-} as const;
+const copy = liioCopy.home;
+
 
 export default function EntryPage() {
   const { language, setLanguage } = useLiioLanguage();
