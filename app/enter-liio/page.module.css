@@ -119,6 +119,82 @@
   cursor: default;
 }
 
+.profileList {
+  display: grid;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.profileCard {
+  display: flex;
+  width: 100%;
+  min-height: 78px;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 15px;
+  text-align: left;
+  border: 1.5px solid #e0d9e6;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 6px 16px rgb(25 20 38 / 5%);
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease;
+}
+
+.profileCard:active {
+  transform: scale(0.987);
+  border-color: #6d4aff;
+}
+
+.avatar {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: #ffffff;
+  border-radius: 50%;
+  background: #6d4aff;
+  font-size: 23px;
+  font-weight: 750;
+}
+
+.profileCopy {
+  min-width: 0;
+}
+
+.profileCopy strong,
+.profileCopy small {
+  display: block;
+}
+
+.profileCopy strong {
+  overflow: hidden;
+  color: #191426;
+  font-size: 17px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profileCopy small {
+  margin-top: 5px;
+  color: #746c7c;
+  font-size: 13px;
+}
+
+.changeCodeButton {
+  width: max-content;
+  margin: 24px auto 0;
+  padding: 8px 2px;
+  color: #6d4aff;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 @media (max-height: 700px) {
   .content {
     min-height: 520px;
