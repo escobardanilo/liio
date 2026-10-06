@@ -4,7 +4,10 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { KeyRound, UserRound } from "lucide-react";
 import {
-  decodePairingCode,
+  activateDevice,
+  resolvePairingCode,
+} from "@/lib/services/pairing-service";
+import {
   normalizePairingCode,
 } from "@/lib/device-code";
 import { useLiioLanguage } from "../components/use-liio-language";
@@ -17,7 +20,6 @@ type ChildProfile = {
   age: number;
 };
 
-const CHILDREN_KEY = "liio-parent-child-profiles";
 const ACTIVE_CHILD_KEY = "liio-active-child-profile";
 const SELECTED_CHILD_KEY = "liio-selected-child-id";
 
@@ -90,9 +92,11 @@ export default function EnterLiioPage() {
   const t = copy[language];
 
   const [code, setCode] = useState("");
+  const [validatedCode, setValidatedCode] = useState("");
   const [error, setError] = useState("");
   const [children, setChildren] = useState<ChildProfile[]>([]);
   const [step, setStep] = useState<"code" | "profile">("code");
+  const [busy, setBusy] = useState(false);
 
   function handleChange(value: string) {
     const normalized = normalizePairingCode(value);
@@ -105,59 +109,68 @@ export default function EnterLiioPage() {
     setError("");
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
-
-    const decoded = decodePairingCode(code);
-
-    if (!decoded) {
-      setError(t.invalid);
-      return;
-    }
+    setBusy(true);
+    setError("");
 
     try {
-      const storedChildren = window.localStorage.getItem(CHILDREN_KEY);
+      const profiles = await resolvePairingCode(code);
 
-      if (!storedChildren) {
+      if (!profiles.length) {
         setError(t.noProfiles);
         return;
       }
 
-      const parsedChildren = JSON.parse(storedChildren) as ChildProfile[];
-
-      if (!Array.isArray(parsedChildren) || parsedChildren.length === 0) {
-        setError(t.noProfiles);
-        return;
-      }
-
-      setChildren(parsedChildren);
+      setValidatedCode(code);
+      setChildren(profiles);
       setStep("profile");
-      setError("");
     } catch {
-      setError(t.loadError);
+      setError(t.invalid);
+    } finally {
+      setBusy(false);
     }
   }
 
-  function chooseChild(child: ChildProfile) {
-    const activeProfile = {
-      childId: child.id,
-      name: child.name,
-      initial: child.name.charAt(0).toUpperCase(),
-      age: child.age,
-      pairedAt: new Date().toISOString(),
-    };
+  async function chooseChild(child: ChildProfile) {
+    setBusy(true);
+    setError("");
 
-    window.localStorage.setItem(
-      ACTIVE_CHILD_KEY,
-      JSON.stringify(activeProfile),
-    );
+    try {
+      const device = await activateDevice(
+        validatedCode,
+        child,
+      );
 
-    window.localStorage.setItem(
-      SELECTED_CHILD_KEY,
-      child.id,
-    );
+      const activeProfile = {
+        childId: device.childId,
+        name: device.childName,
+        initial: device.childName
+          .charAt(0)
+          .toUpperCase(),
+        age: device.childAge,
+        pairedAt: new Date().toISOString(),
+      };
 
-    router.push("/homework");
+      window.localStorage.setItem(
+        ACTIVE_CHILD_KEY,
+        JSON.stringify(activeProfile),
+      );
+
+      window.localStorage.setItem(
+        SELECTED_CHILD_KEY,
+        device.childId,
+      );
+
+      router.push("/homework");
+    } catch {
+      setError(t.invalid);
+      setStep("code");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -179,8 +192,13 @@ export default function EnterLiioPage() {
 
               <p>{t.instruction}</p>
 
-              <form className={styles.form} onSubmit={handleSubmit}>
-                <label htmlFor="liio-code">{t.deviceCode}</label>
+              <form
+                className={styles.form}
+                onSubmit={handleSubmit}
+              >
+                <label htmlFor="liio-code">
+                  {t.deviceCode}
+                </label>
 
                 <input
                   id="liio-code"
@@ -190,7 +208,9 @@ export default function EnterLiioPage() {
                   inputMode="text"
                   maxLength={7}
                   placeholder="ABC-123"
-                  onChange={(event) => handleChange(event.target.value)}
+                  onChange={(event) =>
+                    handleChange(event.target.value)
+                  }
                 />
 
                 {error ? (
@@ -206,9 +226,12 @@ export default function EnterLiioPage() {
                 <button
                   className={styles.continueButton}
                   type="submit"
-                  disabled={normalizePairingCode(code).length !== 6}
+                  disabled={
+                    busy ||
+                    normalizePairingCode(code).length !== 6
+                  }
                 >
-                  {t.continue}
+                  {busy ? "…" : t.continue}
                 </button>
               </form>
             </>
@@ -228,10 +251,15 @@ export default function EnterLiioPage() {
                     key={child.id}
                     className={styles.profileCard}
                     type="button"
-                    onClick={() => chooseChild(child)}
+                    disabled={busy}
+                    onClick={() =>
+                      void chooseChild(child)
+                    }
                   >
                     <span className={styles.avatar}>
-                      {child.name.charAt(0).toUpperCase()}
+                      {child.name
+                        .charAt(0)
+                        .toUpperCase()}
                     </span>
 
                     <span className={styles.profileCopy}>
@@ -244,11 +272,19 @@ export default function EnterLiioPage() {
                 ))}
               </div>
 
+              {error ? (
+                <p className={styles.error} role="alert">
+                  {error}
+                </p>
+              ) : null}
+
               <button
                 className={styles.changeCodeButton}
                 type="button"
+                disabled={busy}
                 onClick={() => {
                   setStep("code");
+                  setValidatedCode("");
                   setCode("");
                   setError("");
                 }}
