@@ -1,6 +1,7 @@
 "use client";
 
 import { Minus, Plus } from "lucide-react";
+import { liioCopy } from "@/lib/i18n/catalog";
 import { useEffect, useState } from "react";
 import { useLiioLanguage } from "./use-liio-language";
 
@@ -24,68 +25,8 @@ const defaultSettings: Settings = {
   paused: false,
 };
 
-const copy = {
-  en: {
-    daily: "Daily limit",
-    quiet: "Quiet hours",
-    canDo: "What liio can do",
-    homework: "Homework mode",
-    homeworkSub: "Guides step by step, never gives the answer",
-    voice: "Voice replies",
-    voiceSub: "liio can talk out loud",
-    create: "Create world",
-    createSub: "Stories, ideas and drawings",
-    pause: "Pause liio now",
-    resume: "Resume liio",
-    decrease: "Decrease daily limit",
-    increase: "Increase daily limit",
-  },
-  pt: {
-    daily: "Limite diário",
-    quiet: "Horário de descanso",
-    canDo: "O que o liio pode fazer",
-    homework: "Modo de tarefas",
-    homeworkSub: "Orienta passo a passo, sem dar a resposta",
-    voice: "Respostas por voz",
-    voiceSub: "liio pode responder em voz alta",
-    create: "Criar mundo",
-    createSub: "Histórias, ideias e desenhos",
-    pause: "Pausar liio agora",
-    resume: "Retomar liio",
-    decrease: "Diminuir limite diário",
-    increase: "Aumentar limite diário",
-  },
-  es: {
-    daily: "Límite diario",
-    quiet: "Horas de descanso",
-    canDo: "Lo que liio puede hacer",
-    homework: "Modo tareas",
-    homeworkSub: "Guía paso a paso, sin dar la respuesta",
-    voice: "Respuestas por voz",
-    voiceSub: "liio puede responder en voz alta",
-    create: "Crear mundo",
-    createSub: "Historias, ideas y dibujos",
-    pause: "Pausar liio ahora",
-    resume: "Reanudar liio",
-    decrease: "Reducir límite diario",
-    increase: "Aumentar límite diario",
-  },
-  de: {
-    daily: "Tageslimit",
-    quiet: "Ruhezeiten",
-    canDo: "Was liio kann",
-    homework: "Hausaufgabenmodus",
-    homeworkSub: "Führt Schritt für Schritt, ohne die Antwort zu geben",
-    voice: "Sprachantworten",
-    voiceSub: "liio kann laut antworten",
-    create: "Welt erstellen",
-    createSub: "Geschichten, Ideen und Zeichnungen",
-    pause: "liio jetzt pausieren",
-    resume: "liio fortsetzen",
-    decrease: "Tageslimit verringern",
-    increase: "Tageslimit erhöhen",
-  },
-} as const;
+const copy = liioCopy.timeSettings;
+
 
 export function TimeSettings({
   childId,
