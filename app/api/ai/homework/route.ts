@@ -27,6 +27,7 @@ const messageSchema = z.object({
 
 const homeworkRequestSchema = z.object({
   age: z.number().int().min(6).max(15).default(MOCK_CHILD_AGE),
+  language: z.enum(["pt", "en", "es", "de"]).default("en"),
   messages: z.array(messageSchema).min(1).max(40),
 }).refine((value) => value.messages.at(-1)?.role === "user", {
   message: "The final conversation message must come from the child.",
@@ -64,14 +65,20 @@ export async function POST(request: Request) {
     );
   }
 
-  const { age, messages } = parsed.data;
+  const { age, language, messages } = parsed.data;
+  const languageInstruction = {
+    pt: "Reply only in European Portuguese unless the child explicitly asks for another language.",
+    en: "Reply only in English unless the child explicitly asks for another language.",
+    es: "Reply only in Spanish unless the child explicitly asks for another language.",
+    de: "Reply only in German unless the child explicitly asks for another language.",
+  }[language];
   const interaction = determineLearningInteraction(messages);
 
   try {
     const initialDraft = sanitizeDraft(await generateText({
       model: HOMEWORK_MODEL,
       maxTokens: 1_000,
-      system: buildHomeworkSystemPrompt(age, interaction.behavior, interaction.learningRequest),
+      system: `${buildHomeworkSystemPrompt(age, interaction.behavior, interaction.learningRequest)}\n\nLanguage for this session:\n${languageInstruction}`,
       messages,
     }));
 
@@ -90,7 +97,7 @@ export async function POST(request: Request) {
           const regeneratedDraft = sanitizeDraft(await generateText({
             model: HOMEWORK_MODEL,
             maxTokens: 1_000,
-            system: buildHomeworkCorrectionPrompt(age, interaction.learningRequest, initialEvaluation.reasons),
+            system: `${buildHomeworkCorrectionPrompt(age, interaction.learningRequest, initialEvaluation.reasons)}\n\nLanguage for this session:\n${languageInstruction}`,
             messages,
           }));
 
@@ -131,7 +138,7 @@ export async function POST(request: Request) {
           const regeneratedDraft = sanitizeDraft(await generateText({
             model: HOMEWORK_MODEL,
             maxTokens: 1_000,
-            system: buildHomeworkCheckCorrectionPrompt(age, interaction.learningRequest, initialEvaluation.reasons),
+            system: `${buildHomeworkCheckCorrectionPrompt(age, interaction.learningRequest, initialEvaluation.reasons)}\n\nLanguage for this session:\n${languageInstruction}`,
             messages,
           }));
 
@@ -159,14 +166,14 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof AiConfigurationError) {
       return Response.json(
-        { error: { code: "AI_NOT_CONFIGURED", message: "Liio is not connected yet. Please try again later." } },
+        { error: { code: "AI_NOT_CONFIGURED", message: language === "pt" ? "liio ainda não está ligado. Tenta novamente mais tarde." : language === "es" ? "liio todavía no está conectado. Inténtalo de nuevo más tarde." : language === "de" ? "liio ist noch nicht verbunden. Versuch es später erneut." : "liio is not connected yet. Please try again later." } },
         { status: 503 },
       );
     }
 
     console.error("Homework generation failed", error instanceof Error ? error.message : "Unknown error");
     return Response.json(
-      { error: { code: "AI_UNAVAILABLE", message: "Liio needs a moment. Please try again shortly." } },
+      { error: { code: "AI_UNAVAILABLE", message: language === "pt" ? "liio precisa de um momento. Tenta novamente daqui a pouco." : language === "es" ? "liio necesita un momento. Inténtalo de nuevo en breve." : language === "de" ? "liio braucht einen Moment. Versuch es gleich noch einmal." : "liio needs a moment. Please try again shortly." } },
       { status: 502 },
     );
   }
