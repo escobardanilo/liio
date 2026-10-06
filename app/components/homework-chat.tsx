@@ -5,6 +5,7 @@ import { BookOpen, ChevronLeft, Gamepad2, Send } from "lucide-react";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { Brand } from "./ui";
 import { Mascot } from "./mascot";
+import { useLiioLanguage } from "./use-liio-language";
 
 type ChatMessage = {
   id: string;
@@ -22,15 +23,77 @@ type ActiveChildProfile = {
 
 const ACTIVE_CHILD_KEY = "liio-active-child-profile";
 
-function createWelcomeMessage(name: string): ChatMessage {
-  return {
-    id: "welcome",
-    role: "assistant",
-    content: `Hey ${name}, what do you want to work on today?`,
-  };
-}
+const copy = {
+  en: {
+    mode: "Homework",
+    welcome: (name: string) => `Hey ${name}, what do you want to work on today?`,
+    fractions: "Help with fractions",
+    fractionsPrompt: "I'm stuck on a fractions question.",
+    equation: "Guide an equation",
+    equationPrompt: "Can you guide me through an equation?",
+    explain: "Explain a step",
+    explainPrompt: "I don't understand this homework step.",
+    placeholder: "Ask about your homework…",
+    footer: "liio will guide you one step at a time.",
+    retry: "Try again",
+    unavailable: "liio could not answer right now.",
+    moment: "liio needs a moment. Please try again.",
+    thinking: "liio is thinking",
+  },
+  pt: {
+    mode: "Tarefas",
+    welcome: (name: string) => `Olá ${name}, no que queres trabalhar hoje?`,
+    fractions: "Ajuda com frações",
+    fractionsPrompt: "Estou com dificuldade numa questão de frações.",
+    equation: "Orientar uma equação",
+    equationPrompt: "Podes orientar-me numa equação?",
+    explain: "Explicar um passo",
+    explainPrompt: "Não estou a perceber este passo do trabalho.",
+    placeholder: "Pergunta sobre o teu trabalho…",
+    footer: "liio vai orientar-te um passo de cada vez.",
+    retry: "Tentar novamente",
+    unavailable: "liio não conseguiu responder agora.",
+    moment: "liio precisa de um momento. Tenta novamente.",
+    thinking: "liio está a pensar",
+  },
+  es: {
+    mode: "Tareas",
+    welcome: (name: string) => `Hola ${name}, ¿en qué quieres trabajar hoy?`,
+    fractions: "Ayuda con fracciones",
+    fractionsPrompt: "Estoy atascado con una pregunta de fracciones.",
+    equation: "Guiar una ecuación",
+    equationPrompt: "¿Puedes guiarme con una ecuación?",
+    explain: "Explicar un paso",
+    explainPrompt: "No entiendo este paso de la tarea.",
+    placeholder: "Pregunta sobre tu tarea…",
+    footer: "liio te guiará paso a paso.",
+    retry: "Intentar de nuevo",
+    unavailable: "liio no pudo responder ahora.",
+    moment: "liio necesita un momento. Inténtalo de nuevo.",
+    thinking: "liio está pensando",
+  },
+  de: {
+    mode: "Hausaufgaben",
+    welcome: (name: string) => `Hallo ${name}, woran möchtest du heute arbeiten?`,
+    fractions: "Hilfe mit Brüchen",
+    fractionsPrompt: "Ich komme bei einer Bruchaufgabe nicht weiter.",
+    equation: "Gleichung begleiten",
+    equationPrompt: "Kannst du mich durch eine Gleichung führen?",
+    explain: "Einen Schritt erklären",
+    explainPrompt: "Ich verstehe diesen Schritt der Aufgabe nicht.",
+    placeholder: "Frag zu deinen Hausaufgaben…",
+    footer: "liio begleitet dich Schritt für Schritt.",
+    retry: "Erneut versuchen",
+    unavailable: "liio konnte gerade nicht antworten.",
+    moment: "liio braucht einen Moment. Versuch es erneut.",
+    thinking: "liio denkt nach",
+  },
+} as const;
 
 export function HomeworkChat() {
+  const { language } = useLiioLanguage();
+  const t = copy[language];
+
   const [child, setChild] = useState<ActiveChildProfile>({
     childId: null,
     name: null,
@@ -39,53 +102,57 @@ export function HomeworkChat() {
     pairedAt: "",
   });
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    createWelcomeMessage("there"),
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const messagesRef = useRef(messages);
+  const messagesRef = useRef<ChatMessage[]>([]);
   const endRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<AbortController | null>(null);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
+    if (initializedRef.current) {
+      return;
+    }
+
+    let childName = language === "pt" ? "aí" : language === "es" ? "ahí" : language === "de" ? "du" : "there";
+    let childAge = 9;
+
     try {
       const storedProfile = window.localStorage.getItem(ACTIVE_CHILD_KEY);
 
       if (storedProfile) {
-        const parsedProfile = JSON.parse(
-          storedProfile,
-        ) as ActiveChildProfile;
+        const parsedProfile = JSON.parse(storedProfile) as ActiveChildProfile;
 
-        const childName = parsedProfile.name?.trim() || "there";
-        const childAge =
+        childName = parsedProfile.name?.trim() || childName;
+        childAge =
           Number.isInteger(parsedProfile.age) &&
           parsedProfile.age >= 6 &&
           parsedProfile.age <= 15
             ? parsedProfile.age
             : 9;
 
-        const normalizedProfile = {
+        setChild({
           ...parsedProfile,
           name: childName,
           age: childAge,
-        };
-
-        setChild(normalizedProfile);
-
-        const welcomeMessage = createWelcomeMessage(childName);
-
-        messagesRef.current = [welcomeMessage];
-        setMessages([welcomeMessage]);
+        });
       }
     } catch {
-      const welcomeMessage = createWelcomeMessage("there");
-
-      messagesRef.current = [welcomeMessage];
-      setMessages([welcomeMessage]);
+      // Use the safe defaults above.
     }
-  }, []);
+
+    const welcomeMessage: ChatMessage = {
+      id: "welcome",
+      role: "assistant",
+      content: t.welcome(childName),
+    };
+
+    initializedRef.current = true;
+    messagesRef.current = [welcomeMessage];
+    setMessages([welcomeMessage]);
+  }, [language, t]);
 
   useEffect(() => {
     messagesRef.current = messages;
@@ -120,6 +187,7 @@ export function HomeworkChat() {
         },
         body: JSON.stringify({
           age: child.age,
+          language,
           messages: conversation
             .slice(-40)
             .map(({ role, content }) => ({
@@ -142,8 +210,7 @@ export function HomeworkChat() {
 
       if (!response.ok || !data.message?.content) {
         throw new Error(
-          data.error?.message ||
-            "liio could not answer right now.",
+          data.error?.message || t.unavailable,
         );
       }
 
@@ -166,7 +233,7 @@ export function HomeworkChat() {
       setError(
         requestError instanceof Error
           ? requestError.message
-          : "liio needs a moment. Please try again.",
+          : t.moment,
       );
     } finally {
       if (controllerRef.current === controller) {
@@ -221,7 +288,7 @@ export function HomeworkChat() {
 
           <span className="mode-pill">
             <BookOpen size={13} />
-            Homework
+            {t.mode}
           </span>
         </div>
 
@@ -260,35 +327,23 @@ export function HomeworkChat() {
           <div className="prompt-chips">
             <button
               type="button"
-              onClick={() =>
-                sendMessage(
-                  "I'm stuck on a fractions question.",
-                )
-              }
+              onClick={() => sendMessage(t.fractionsPrompt)}
             >
-              Help with fractions
+              {t.fractions}
             </button>
 
             <button
               type="button"
-              onClick={() =>
-                sendMessage(
-                  "Can you guide me through an equation?",
-                )
-              }
+              onClick={() => sendMessage(t.equationPrompt)}
             >
-              Guide an equation
+              {t.equation}
             </button>
 
             <button
               type="button"
-              onClick={() =>
-                sendMessage(
-                  "I don't understand this homework step.",
-                )
-              }
+              onClick={() => sendMessage(t.explainPrompt)}
             >
-              Explain a step
+              {t.explain}
             </button>
           </div>
         )}
@@ -305,7 +360,7 @@ export function HomeworkChat() {
 
             <div
               className="chat-bubble thinking-bubble"
-              aria-label="liio is thinking"
+              aria-label={t.thinking}
             >
               <span />
               <span />
@@ -326,7 +381,7 @@ export function HomeworkChat() {
                 )
               }
             >
-              Try again
+              {t.retry}
             </button>
           </div>
         )}
@@ -353,7 +408,7 @@ export function HomeworkChat() {
                 sendMessage(input);
               }
             }}
-            placeholder="Ask about your homework…"
+            placeholder={t.placeholder}
             rows={1}
             maxLength={4000}
             disabled={loading}
@@ -369,9 +424,7 @@ export function HomeworkChat() {
           </button>
         </div>
 
-        <p>
-          liio will guide you one step at a time.
-        </p>
+        <p>{t.footer}</p>
       </form>
     </main>
   );
