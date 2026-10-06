@@ -15,6 +15,12 @@ import {
 } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { isParentSessionActive } from "@/lib/parent-session";
+import {
+  deleteChild,
+  ensureFamilyIdentity,
+  listChildren,
+  upsertChild,
+} from "@/lib/services/family-service";
 import { useLiioLanguage } from "../components/use-liio-language";
 import { MobileShell } from "../components/ui";
 import { ParentsDrawer } from "../components/parents-drawer";
@@ -194,61 +200,72 @@ export default function ParentsHomePage() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    try {
-      const storedProfile =
-        window.localStorage.getItem(PROFILE_STORAGE_KEY);
+    let cancelled = false;
 
-      if (!storedProfile || !isParentSessionActive()) {
-        router.replace("/responsible-area");
-        return;
-      }
+    async function loadParentsArea() {
+      try {
+        const storedProfile =
+          window.localStorage.getItem(PROFILE_STORAGE_KEY);
 
-      const stored =
-        window.localStorage.getItem(STORAGE_KEY);
-      const storedSelectedId =
-        window.localStorage.getItem(SELECTED_CHILD_KEY);
+        if (!storedProfile || !isParentSessionActive()) {
+          router.replace("/responsible-area");
+          return;
+        }
 
-      if (stored) {
-        const parsed = JSON.parse(stored) as ChildProfile[];
+        const parentProfile = JSON.parse(storedProfile) as {
+          id: string;
+          name: string;
+          method: "apple" | "google" | "email" | "passkey" | "family";
+          createdAt: string;
+          updatedAt: string;
+        };
 
-        if (Array.isArray(parsed)) {
-          setProfiles(parsed);
+        await ensureFamilyIdentity(parentProfile, language);
 
-          const selectedStillExists = parsed.some(
-            (profile) => profile.id === storedSelectedId,
+        const loadedProfiles = await listChildren();
+
+        if (cancelled) {
+          return;
+        }
+
+        setProfiles(loadedProfiles);
+
+        const storedSelectedId =
+          window.localStorage.getItem(SELECTED_CHILD_KEY);
+
+        const selectedStillExists = loadedProfiles.some(
+          (profile) => profile.id === storedSelectedId,
+        );
+
+        const initialSelectedId = selectedStillExists
+          ? storedSelectedId
+          : (loadedProfiles[0]?.id ?? null);
+
+        setSelectedId(initialSelectedId);
+
+        if (initialSelectedId) {
+          window.localStorage.setItem(
+            SELECTED_CHILD_KEY,
+            initialSelectedId,
           );
+        } else {
+          window.localStorage.removeItem(SELECTED_CHILD_KEY);
+        }
 
-          const initialSelectedId = selectedStillExists
-            ? storedSelectedId
-            : (parsed[0]?.id ?? null);
-
-          setSelectedId(initialSelectedId);
-
-          if (initialSelectedId) {
-            window.localStorage.setItem(
-              SELECTED_CHILD_KEY,
-              initialSelectedId,
-            );
-          }
+        setReady(true);
+      } catch {
+        if (!cancelled) {
+          router.replace("/responsible-area");
         }
       }
-
-      setReady(true);
-    } catch {
-      router.replace("/responsible-area");
-    }
-  }, [router]);
-
-  useEffect(() => {
-    if (!ready) {
-      return;
     }
 
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(profiles),
-    );
-  }, [profiles, ready]);
+    void loadParentsArea();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [language, router]);
 
   const selectedProfile = useMemo(
     () =>
@@ -290,7 +307,7 @@ export default function ParentsHomePage() {
     });
   }
 
-  function handleSubmit(
+  async function handleSubmit(
     event: FormEvent<HTMLFormElement>,
   ) {
     event.preventDefault();
@@ -307,37 +324,32 @@ export default function ParentsHomePage() {
       return;
     }
 
-    if (editingId) {
-      setProfiles((current) =>
-        current.map((profile) =>
-          profile.id === editingId
-            ? {
-                ...profile,
-                name,
-                age,
-              }
-            : profile,
-        ),
+    const saved = await upsertChild({
+      id: editingId,
+      name,
+      age,
+    });
+
+    setProfiles((current) => {
+      const exists = current.some(
+        (profile) => profile.id === saved.id,
       );
-    } else {
-      const newProfile: ChildProfile = {
-        id: crypto.randomUUID(),
-        name,
-        age,
-      };
 
-      setProfiles((current) => [
-        ...current,
-        newProfile,
-      ]);
+      return exists
+        ? current.map((profile) =>
+            profile.id === saved.id
+              ? saved
+              : profile,
+          )
+        : [...current, saved];
+    });
 
-      selectProfile(newProfile.id);
-    }
+    selectProfile(saved.id);
 
     closeModal();
   }
 
-  function removeProfile(profile: ChildProfile) {
+  async function removeProfile(profile: ChildProfile) {
     const confirmed = window.confirm(
       t.removeConfirm(profile.name),
     );
@@ -345,6 +357,8 @@ export default function ParentsHomePage() {
     if (!confirmed) {
       return;
     }
+
+    await deleteChild(profile.id);
 
     setProfiles((current) => {
       const nextProfiles = current.filter(
