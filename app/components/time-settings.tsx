@@ -163,7 +163,7 @@ export function TimeSettings({ childId }: { childId: string }) {
       </div>
 
       <section className="settings-list">
-        <p className="section-label">What Liio can do</p>
+        <p className="section-label">What liio can do</p>
 
         <ToggleRow
           title="Homework mode"
@@ -178,7 +178,7 @@ export function TimeSettings({ childId }: { childId: string }) {
 
         <ToggleRow
           title="Voice replies"
-          description="Liio can talk out loud"
+          description="liio can talk out loud"
           value={settings.voice}
           onChange={(value) =>
             updateSettings({
@@ -208,7 +208,7 @@ export function TimeSettings({ childId }: { childId: string }) {
           })
         }
       >
-        {settings.paused ? "Resume Liio" : "Pause Liio now"}
+        {settings.paused ? "Resume liio" : "Pause liio now"}
       </button>
     </>
   );
