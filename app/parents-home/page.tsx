@@ -234,7 +234,7 @@ export default function ParentsHomePage() {
             <h2>No child profiles yet</h2>
 
             <p>
-              Add your first child to start setting up their Liio experience.
+              Add your first child to start setting up their liio experience.
             </p>
 
             <button
@@ -365,7 +365,7 @@ export default function ParentsHomePage() {
 
                       <span className={styles.manageCopy}>
                         <strong>Devices &amp; codes</strong>
-                        <small>Generate a code to enter Liio</small>
+                        <small>Generate a code to enter liio</small>
                       </span>
 
                       <ChevronRight size={22} strokeWidth={2.1} />
