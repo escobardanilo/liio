@@ -1,0 +1,480 @@
+.shell {
+  background:
+    radial-gradient(circle at top, #ffffff 0%, #fbf9ff 32%, #f5f0ff 100%);
+}
+
+.page {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  padding:
+    max(30px, env(safe-area-inset-top))
+    24px
+    max(32px, env(safe-area-inset-bottom));
+  background:
+    linear-gradient(180deg, #ffffff 0%, #fbf8ff 35%, #f5f0ff 100%);
+}
+
+.backgroundDecor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cloud {
+  position: absolute;
+  top: 38px;
+  left: 16px;
+  width: 54px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 92%);
+  box-shadow:
+    16px -10px 0 2px rgb(255 255 255 / 92%),
+    31px -4px 0 0 rgb(255 255 255 / 92%);
+}
+
+.sparkleA,
+.sparkleB,
+.sparkleC {
+  position: absolute;
+  color: #8d72ff;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.sparkleA {
+  top: 186px;
+  left: 25px;
+  color: #9a83ff;
+}
+
+.sparkleB {
+  top: 215px;
+  right: 33px;
+  color: #ffe047;
+  font-size: 21px;
+}
+
+.sparkleC {
+  bottom: 148px;
+  left: 20px;
+  color: #8d72ff;
+}
+
+.strokeA,
+.strokeB,
+.strokeC {
+  position: absolute;
+  border-radius: 999px;
+  background: #7857ff;
+}
+
+.strokeA {
+  top: 258px;
+  right: 28px;
+  width: 18px;
+  height: 3px;
+  transform: rotate(26deg);
+}
+
+.strokeB {
+  top: 270px;
+  right: 20px;
+  width: 10px;
+  height: 3px;
+  transform: rotate(90deg);
+}
+
+.strokeC {
+  top: 267px;
+  right: 38px;
+  width: 10px;
+  height: 3px;
+  transform: rotate(-36deg);
+}
+
+.blobLeft,
+.blobRight {
+  position: absolute;
+  display: block;
+  border-radius: 999px;
+  opacity: 0.8;
+  filter: blur(0.2px);
+}
+
+.blobLeft {
+  bottom: -32px;
+  left: -20px;
+  width: 78px;
+  height: 78px;
+  background: linear-gradient(180deg, #d5c2ff 0%, #f0e8ff 100%);
+}
+
+.blobRight {
+  right: -30px;
+  bottom: -20px;
+  width: 92px;
+  height: 92px;
+  background: linear-gradient(180deg, #dff4c8 0%, #f2f9e8 100%);
+}
+
+.header {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 16px;
+  justify-items: center;
+}
+
+.logoWrap {
+  display: flex;
+  justify-content: center;
+}
+
+.logo {
+  display: inline-block;
+  margin: 0;
+  background: linear-gradient(180deg, #7b5dff 0%, #5c43f1 100%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  font-family: var(--font-fredoka), var(--font-inter), sans-serif;
+  font-size: 78px;
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -2.4px;
+  text-transform: lowercase;
+  text-shadow: 0 12px 32px rgb(102 72 255 / 10%);
+}
+
+.languageSwitch {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.languageButton {
+  min-width: 42px;
+  height: 30px;
+  padding: 0 10px;
+  color: #6f6691;
+  border: 1.4px solid #dfd6f7;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 78%);
+  backdrop-filter: blur(6px);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
+}
+
+.languageButtonActive {
+  color: #ffffff;
+  border-color: #7455ff;
+  background: #7455ff;
+}
+
+.hero {
+  position: relative;
+  z-index: 1;
+  margin-top: 26px;
+  text-align: center;
+}
+
+.hero h1 {
+  margin: 0;
+  color: #1d1831;
+  font-family: var(--font-fredoka), var(--font-inter), sans-serif;
+  font-size: 42px;
+  font-weight: 650;
+  line-height: 1.02;
+  letter-spacing: -1.2px;
+  text-wrap: balance;
+  text-shadow: 0 2px 12px rgb(255 255 255 / 65%);
+}
+
+.cards {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 24px;
+  margin-top: 30px;
+}
+
+.card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr) 50px;
+  align-items: center;
+  gap: 14px;
+  min-height: 170px;
+  padding: 18px;
+  border-radius: 28px;
+  text-decoration: none;
+  box-shadow: 0 10px 28px rgb(30 21 68 / 10%);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.card:active {
+  transform: scale(0.989);
+}
+
+.primaryCard {
+  overflow: hidden;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 22% 30%, rgb(255 255 255 / 12%) 0%, transparent 28%),
+    linear-gradient(135deg, #7a58ff 0%, #6b49ff 35%, #5e43f0 100%);
+}
+
+.secondaryCard {
+  color: #1d1831;
+  border: 2px solid #7554ff;
+  background: rgb(255 255 255 / 88%);
+  backdrop-filter: blur(4px);
+}
+
+.cardCopy,
+.cardCopySecondary {
+  display: grid;
+  gap: 8px;
+  align-content: center;
+}
+
+.cardCopy strong,
+.cardCopySecondary strong {
+  font-family: var(--font-fredoka), var(--font-inter), sans-serif;
+  font-size: 22px;
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.5px;
+}
+
+.cardCopy span,
+.cardCopySecondary span {
+  font-size: 15px;
+  line-height: 1.42;
+}
+
+.cardCopy {
+  color: #ffffff;
+}
+
+.cardCopy span {
+  color: rgb(255 255 255 / 88%);
+}
+
+.cardCopySecondary {
+  color: #1d1831;
+}
+
+.cardCopySecondary span {
+  color: #5f5971;
+}
+
+.arrowCircle,
+.arrowCircleSecondary {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.arrowCircle {
+  color: #6a49ff;
+  background: #ffffff;
+}
+
+.arrowCircleSecondary {
+  color: #6a49ff;
+  background: #f6f2ff;
+}
+
+.lockWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lockCircle {
+  display: grid;
+  width: 92px;
+  height: 92px;
+  place-items: center;
+  color: #7554ff;
+  border-radius: 50%;
+  background: #efe8ff;
+}
+
+.childIllustration {
+  position: relative;
+  width: 112px;
+  height: 126px;
+  align-self: end;
+  justify-self: start;
+}
+
+.childAura {
+  position: absolute;
+  inset: 16px 0 0;
+  border-radius: 999px 999px 28px 28px;
+  background: rgb(76 34 220 / 18%);
+}
+
+.childBody {
+  position: absolute;
+  bottom: 0;
+  left: 10px;
+  width: 86px;
+  height: 68px;
+  border-radius: 28px 28px 22px 22px;
+  background: linear-gradient(180deg, #ffd23f 0%, #f7b528 100%);
+}
+
+.childNeck {
+  position: absolute;
+  top: 50px;
+  left: 45px;
+  width: 12px;
+  height: 12px;
+  border-radius: 8px;
+  background: #ffd7bc;
+}
+
+.childFace {
+  position: absolute;
+  top: 23px;
+  left: 29px;
+  width: 46px;
+  height: 44px;
+  border-radius: 18px 18px 20px 20px;
+  background: #ffd7bc;
+}
+
+.childEar {
+  position: absolute;
+  top: 38px;
+  left: 25px;
+  width: 9px;
+  height: 11px;
+  border-radius: 50%;
+  background: #ffc8a1;
+}
+
+.childHairBack {
+  position: absolute;
+  top: 16px;
+  left: 23px;
+  width: 58px;
+  height: 34px;
+  border-radius: 20px 22px 12px 16px;
+  background: linear-gradient(180deg, #5d35cc 0%, #4520a3 100%);
+}
+
+.childHairFront {
+  position: absolute;
+  top: 18px;
+  left: 24px;
+  width: 48px;
+  height: 22px;
+  border-radius: 16px 16px 8px 16px;
+  background: linear-gradient(180deg, #6a3ee0 0%, #4d28b8 100%);
+  transform: rotate(-7deg);
+}
+
+.childHairSide {
+  position: absolute;
+  top: 28px;
+  left: 58px;
+  width: 22px;
+  height: 28px;
+  border-radius: 0 16px 14px 14px;
+  background: linear-gradient(180deg, #6438d7 0%, #4d28b8 100%);
+}
+
+.childEyeLeft,
+.childEyeRight {
+  position: absolute;
+  top: 43px;
+  width: 5px;
+  height: 9px;
+  border-radius: 999px;
+  background: #1e1832;
+}
+
+.childEyeLeft {
+  left: 42px;
+}
+
+.childEyeRight {
+  left: 58px;
+}
+
+.childSmile {
+  position: absolute;
+  top: 55px;
+  left: 47px;
+  width: 16px;
+  height: 8px;
+  border-bottom: 3px solid #b45f3d;
+  border-radius: 0 0 12px 12px;
+}
+
+.childArm {
+  position: absolute;
+  top: 56px;
+  left: 71px;
+  width: 16px;
+  height: 42px;
+  border-radius: 999px;
+  background: #ffd23f;
+  transform: rotate(-34deg);
+  transform-origin: bottom center;
+}
+
+.childHand {
+  position: absolute;
+  top: 45px;
+  left: 83px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffd7bc;
+}
+
+@media (max-width: 360px) {
+  .logo {
+    font-size: 70px;
+  }
+
+  .hero h1 {
+    font-size: 37px;
+  }
+
+  .card {
+    grid-template-columns: 104px minmax(0, 1fr) 44px;
+    min-height: 160px;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .cardCopy strong,
+  .cardCopySecondary strong {
+    font-size: 20px;
+  }
+
+  .cardCopy span,
+  .cardCopySecondary span {
+    font-size: 14px;
+  }
+}
