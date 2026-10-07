@@ -1,21 +1,18 @@
 import {
   clearPrototypeSessionState,
-  purgeLegacyPersistentPrototypeState,
+  clearLegacyPersistentPrototypeState,
 } from "@/lib/services/local-state";
 
 const SESSION_KEY =
   "liio-parent-session";
 
 export function startParentSession() {
-  purgeLegacyPersistentPrototypeState();
+  clearLegacyPersistentPrototypeState();
 
   window.sessionStorage.setItem(
     SESSION_KEY,
     "active",
   );
-
-  document.cookie =
-    "liio_parent_session=; Path=/; Max-Age=0; SameSite=Lax";
 }
 
 export function endParentSession() {
@@ -23,8 +20,6 @@ export function endParentSession() {
 }
 
 export function isParentSessionActive() {
-  purgeLegacyPersistentPrototypeState();
-
   return (
     window.sessionStorage.getItem(
       SESSION_KEY,
@@ -35,14 +30,8 @@ export function isParentSessionActive() {
 export function restoreParentSessionIfAllowed(
   hasProfile: boolean,
 ) {
-  if (isParentSessionActive()) {
-    return true;
-  }
-
-  if (!hasProfile) {
-    return false;
-  }
-
-  startParentSession();
-  return true;
+  return (
+    hasProfile &&
+    isParentSessionActive()
+  );
 }
