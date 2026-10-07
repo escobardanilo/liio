@@ -250,3 +250,8 @@ export function clearDeviceIdentity() {
     DEVICE_KEY,
   );
 }
+
+
+export function purgeLegacyPersistentPrototypeState() {
+  clearLegacyPersistentPrototypeState();
+}
