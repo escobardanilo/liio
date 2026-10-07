@@ -7,119 +7,193 @@ import type {
 } from "@/lib/domain/family";
 import { assertChildAge } from "@/lib/domain/family";
 import { createOpaqueSecret } from "@/lib/security/opaque-secret";
+import {
+  purgeLegacyPersistentPrototypeState,
+} from "@/lib/services/local-state";
 
 const FAMILY_KEY = "liio-family-identity";
 const PARENT_KEY = "liio-parent-profile";
-const CHILDREN_KEY = "liio-parent-child-profiles";
+const CHILDREN_KEY =
+  "liio-parent-child-profiles";
 
-function readJson<T>(key: string): T | null {
+function readJson<T>(
+  key: string,
+): T | null {
+  purgeLegacyPersistentPrototypeState();
+
   try {
-    const value = window.localStorage.getItem(key);
-    return value ? (JSON.parse(value) as T) : null;
+    const value =
+      window.sessionStorage.getItem(key);
+
+    return value
+      ? (JSON.parse(value) as T)
+      : null;
   } catch {
     return null;
   }
 }
 
-function writeJson(key: string, value: unknown) {
-  window.localStorage.setItem(key, JSON.stringify(value));
+function writeJson(
+  key: string,
+  value: unknown,
+) {
+  purgeLegacyPersistentPrototypeState();
+
+  window.sessionStorage.setItem(
+    key,
+    JSON.stringify(value),
+  );
 }
 
 export function getLocalParentProfile() {
-  return readJson<ParentProfile>(PARENT_KEY);
+  return readJson<ParentProfile>(
+    PARENT_KEY,
+  );
 }
 
 export function getLocalFamilyIdentity() {
-  return readJson<FamilyIdentity>(FAMILY_KEY);
+  return readJson<FamilyIdentity>(
+    FAMILY_KEY,
+  );
 }
 
 export function getLocalChildren() {
-  return readJson<ChildProfile[]>(CHILDREN_KEY) ?? [];
+  return (
+    readJson<ChildProfile[]>(
+      CHILDREN_KEY,
+    ) ?? []
+  );
 }
 
-export function saveLocalChildren(children: ChildProfile[]) {
-  writeJson(CHILDREN_KEY, children);
+export function saveLocalChildren(
+  children: ChildProfile[],
+) {
+  writeJson(
+    CHILDREN_KEY,
+    children,
+  );
 }
 
 export async function ensureFamilyIdentity(
   parent: ParentProfile,
   language: LiioLanguage,
 ): Promise<FamilyIdentity> {
-  const existing = getLocalFamilyIdentity();
-  const supabase = getLiioSupabaseBrowserClient();
+  const existing =
+    getLocalFamilyIdentity();
+
+  const supabase =
+    getLiioSupabaseBrowserClient();
 
   if (existing?.mode === "remote") {
     return existing;
   }
 
   const ownerSecret =
-    existing?.ownerSecret ?? createOpaqueSecret();
+    existing?.ownerSecret ??
+    createOpaqueSecret();
 
   if (existing && supabase) {
-    const { error: existingRemoteError } =
-      await supabase.rpc(
-        "liio_list_children_owner",
-        {
-          p_family_id: existing.familyId,
-          p_owner_secret: ownerSecret,
-        },
-      );
+    const {
+      error:
+        existingRemoteError,
+    } = await supabase.rpc(
+      "liio_list_children_owner",
+      {
+        p_family_id:
+          existing.familyId,
+        p_owner_secret:
+          ownerSecret,
+      },
+    );
 
     if (!existingRemoteError) {
-      const remoteIdentity: FamilyIdentity = {
-        ...existing,
-        mode: "remote",
-      };
+      const remoteIdentity:
+        FamilyIdentity = {
+          ...existing,
+          mode: "remote",
+        };
 
-      writeJson(FAMILY_KEY, remoteIdentity);
+      writeJson(
+        FAMILY_KEY,
+        remoteIdentity,
+      );
+
       return remoteIdentity;
     }
   }
 
   if (supabase) {
-    const { data, error } = await supabase.rpc(
-      "liio_create_family",
-      {
-        p_owner_secret: ownerSecret,
-        p_parent_name: parent.name,
-        p_language: language,
-      },
-    );
+    const { data, error } =
+      await supabase.rpc(
+        "liio_create_family",
+        {
+          p_owner_secret:
+            ownerSecret,
+          p_parent_name:
+            parent.name,
+          p_language:
+            language,
+        },
+      );
 
-    if (!error && typeof data === "string") {
-      const identity: FamilyIdentity = {
-        familyId: data,
-        ownerSecret,
-        mode: "remote",
-      };
+    if (
+      !error &&
+      typeof data === "string"
+    ) {
+      const identity:
+        FamilyIdentity = {
+          familyId: data,
+          ownerSecret,
+          mode: "remote",
+        };
 
-      writeJson(FAMILY_KEY, identity);
+      writeJson(
+        FAMILY_KEY,
+        identity,
+      );
 
-      const localChildren = getLocalChildren();
+      const localChildren =
+        getLocalChildren();
 
-      for (const child of localChildren) {
-        await supabase.rpc("liio_upsert_child", {
-          p_family_id: identity.familyId,
-          p_owner_secret: identity.ownerSecret,
-          p_child_id: null,
-          p_name: child.name,
-          p_age: child.age,
-        });
-      }
-
-      const { data: remoteChildren } =
+      for (
+        const child
+        of localChildren
+      ) {
         await supabase.rpc(
-          "liio_list_children_owner",
+          "liio_upsert_child",
           {
-            p_family_id: identity.familyId,
+            p_family_id:
+              identity.familyId,
             p_owner_secret:
               identity.ownerSecret,
+            p_child_id: null,
+            p_name: child.name,
+            p_age: child.age,
           },
         );
+      }
 
-      if (Array.isArray(remoteChildren)) {
+      const {
+        data:
+          remoteChildren,
+      } = await supabase.rpc(
+        "liio_list_children_owner",
+        {
+          p_family_id:
+            identity.familyId,
+          p_owner_secret:
+            identity.ownerSecret,
+        },
+      );
+
+      if (
+        Array.isArray(
+          remoteChildren,
+        )
+      ) {
         saveLocalChildren(
-          remoteChildren as ChildProfile[],
+          remoteChildren
+            as ChildProfile[],
         );
       }
 
@@ -128,38 +202,67 @@ export async function ensureFamilyIdentity(
   }
 
   if (existing) {
-    const localIdentity: FamilyIdentity = {
-      ...existing,
-      mode: "local",
-    };
+    const localIdentity:
+      FamilyIdentity = {
+        ...existing,
+        mode: "local",
+      };
 
-    writeJson(FAMILY_KEY, localIdentity);
+    writeJson(
+      FAMILY_KEY,
+      localIdentity,
+    );
+
     return localIdentity;
   }
 
-  const fallbackIdentity: FamilyIdentity = {
-    familyId: crypto.randomUUID(),
-    ownerSecret,
-    mode: "local",
-  };
+  const fallbackIdentity:
+    FamilyIdentity = {
+      familyId:
+        crypto.randomUUID(),
+      ownerSecret,
+      mode: "local",
+    };
 
-  writeJson(FAMILY_KEY, fallbackIdentity);
+  writeJson(
+    FAMILY_KEY,
+    fallbackIdentity,
+  );
+
   return fallbackIdentity;
 }
 
-export async function listChildren(): Promise<ChildProfile[]> {
-  const identity = getLocalFamilyIdentity();
-  const supabase = getLiioSupabaseBrowserClient();
+export async function listChildren():
+  Promise<ChildProfile[]> {
+  const identity =
+    getLocalFamilyIdentity();
+
+  const supabase =
+    getLiioSupabaseBrowserClient();
 
   if (identity && supabase) {
-    const { data, error } = await supabase.rpc("liio_list_children_owner", {
-      p_family_id: identity.familyId,
-      p_owner_secret: identity.ownerSecret,
-    });
+    const { data, error } =
+      await supabase.rpc(
+        "liio_list_children_owner",
+        {
+          p_family_id:
+            identity.familyId,
+          p_owner_secret:
+            identity.ownerSecret,
+        },
+      );
 
-    if (!error && Array.isArray(data)) {
-      const children = data as ChildProfile[];
-      saveLocalChildren(children);
+    if (
+      !error &&
+      Array.isArray(data)
+    ) {
+      const children =
+        data as ChildProfile[];
+
+      saveLocalChildren(
+        children,
+      );
+
       return children;
     }
   }
@@ -168,28 +271,67 @@ export async function listChildren(): Promise<ChildProfile[]> {
 }
 
 export async function upsertChild(
-  child: Omit<ChildProfile, "id"> & { id?: string | null },
+  child:
+    Omit<
+      ChildProfile,
+      "id"
+    > & {
+      id?: string | null;
+    },
 ): Promise<ChildProfile> {
   assertChildAge(child.age);
 
-  const identity = getLocalFamilyIdentity();
-  const supabase = getLiioSupabaseBrowserClient();
+  const identity =
+    getLocalFamilyIdentity();
+
+  const supabase =
+    getLiioSupabaseBrowserClient();
 
   if (identity && supabase) {
-    const { data, error } = await supabase.rpc("liio_upsert_child", {
-      p_family_id: identity.familyId,
-      p_owner_secret: identity.ownerSecret,
-      p_child_id: child.id ?? null,
-      p_name: child.name.trim(),
-      p_age: child.age,
-    });
+    const { data, error } =
+      await supabase.rpc(
+        "liio_upsert_child",
+        {
+          p_family_id:
+            identity.familyId,
+          p_owner_secret:
+            identity.ownerSecret,
+          p_child_id:
+            child.id ?? null,
+          p_name:
+            child.name.trim(),
+          p_age: child.age,
+        },
+      );
 
-    if (!error && Array.isArray(data) && data[0]) {
-      const saved = data[0] as ChildProfile;
-      const localChildren = getLocalChildren();
-      const next = child.id
-        ? localChildren.map((item) => (item.id === saved.id ? saved : item))
-        : [...localChildren.filter((item) => item.id !== saved.id), saved];
+    if (
+      !error &&
+      Array.isArray(data) &&
+      data[0]
+    ) {
+      const saved =
+        data[0] as ChildProfile;
+
+      const localChildren =
+        getLocalChildren();
+
+      const next =
+        child.id
+          ? localChildren.map(
+              (item) =>
+                item.id ===
+                saved.id
+                  ? saved
+                  : item,
+            )
+          : [
+              ...localChildren.filter(
+                (item) =>
+                  item.id !==
+                  saved.id,
+              ),
+              saved,
+            ];
 
       saveLocalChildren(next);
       return saved;
@@ -197,34 +339,67 @@ export async function upsertChild(
   }
 
   const saved: ChildProfile = {
-    id: child.id ?? crypto.randomUUID(),
-    name: child.name.trim(),
+    id:
+      child.id ??
+      crypto.randomUUID(),
+    name:
+      child.name.trim(),
     age: child.age,
   };
 
-  const localChildren = getLocalChildren();
-  const exists = localChildren.some((item) => item.id === saved.id);
-  const next = exists
-    ? localChildren.map((item) => (item.id === saved.id ? saved : item))
-    : [...localChildren, saved];
+  const localChildren =
+    getLocalChildren();
+
+  const exists =
+    localChildren.some(
+      (item) =>
+        item.id === saved.id,
+    );
+
+  const next =
+    exists
+      ? localChildren.map(
+          (item) =>
+            item.id === saved.id
+              ? saved
+              : item,
+        )
+      : [
+          ...localChildren,
+          saved,
+        ];
 
   saveLocalChildren(next);
+
   return saved;
 }
 
-export async function deleteChild(childId: string) {
-  const identity = getLocalFamilyIdentity();
-  const supabase = getLiioSupabaseBrowserClient();
+export async function deleteChild(
+  childId: string,
+) {
+  const identity =
+    getLocalFamilyIdentity();
+
+  const supabase =
+    getLiioSupabaseBrowserClient();
 
   if (identity && supabase) {
-    await supabase.rpc("liio_delete_child", {
-      p_family_id: identity.familyId,
-      p_owner_secret: identity.ownerSecret,
-      p_child_id: childId,
-    });
+    await supabase.rpc(
+      "liio_delete_child",
+      {
+        p_family_id:
+          identity.familyId,
+        p_owner_secret:
+          identity.ownerSecret,
+        p_child_id: childId,
+      },
+    );
   }
 
   saveLocalChildren(
-    getLocalChildren().filter((child) => child.id !== childId),
+    getLocalChildren().filter(
+      (child) =>
+        child.id !== childId,
+    ),
   );
 }

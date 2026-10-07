@@ -1,5 +1,8 @@
 import { getLiioSupabaseBrowserClient } from "@/lib/data/supabase-browser";
 import { getLocalFamilyIdentity } from "@/lib/services/family-service";
+import {
+  purgeLegacyPersistentPrototypeState,
+} from "@/lib/services/local-state";
 
 export type TimeSettingsRecord = {
   minutes: number;
@@ -11,52 +14,85 @@ export type TimeSettingsRecord = {
   paused: boolean;
 };
 
-export const defaultTimeSettings: TimeSettingsRecord = {
-  minutes: 60,
-  quietStart: "20:00",
-  quietEnd: "07:00",
-  homework: true,
-  voice: true,
-  createWorld: false,
-  paused: false,
-};
+export const defaultTimeSettings:
+  TimeSettingsRecord = {
+    minutes: 60,
+    quietStart: "20:00",
+    quietEnd: "07:00",
+    homework: true,
+    voice: true,
+    createWorld: false,
+    paused: false,
+  };
 
-function storageKey(childId: string) {
+function storageKey(
+  childId: string,
+) {
   return `liio-time-settings-${childId}`;
 }
 
 export async function loadTimeSettings(
   childId: string,
 ): Promise<TimeSettingsRecord> {
-  const identity = getLocalFamilyIdentity();
-  const supabase = getLiioSupabaseBrowserClient();
+  purgeLegacyPersistentPrototypeState();
+
+  const identity =
+    getLocalFamilyIdentity();
+
+  const supabase =
+    getLiioSupabaseBrowserClient();
 
   if (identity && supabase) {
-    const { data, error } = await supabase.rpc(
-      "liio_get_time_limits",
-      {
-        p_family_id: identity.familyId,
-        p_owner_secret: identity.ownerSecret,
-        p_child_id: childId,
-      },
-    );
+    const { data, error } =
+      await supabase.rpc(
+        "liio_get_time_limits",
+        {
+          p_family_id:
+            identity.familyId,
+          p_owner_secret:
+            identity.ownerSecret,
+          p_child_id: childId,
+        },
+      );
 
-    if (!error && Array.isArray(data) && data[0]) {
+    if (
+      !error &&
+      Array.isArray(data) &&
+      data[0]
+    ) {
       const row = data[0];
 
-      const settings: TimeSettingsRecord = {
-        minutes: row.daily_minutes as number,
-        quietStart: String(row.quiet_start).slice(0, 5),
-        quietEnd: String(row.quiet_end).slice(0, 5),
-        homework: row.homework_enabled as boolean,
-        voice: row.voice_enabled as boolean,
-        createWorld: row.create_world_enabled as boolean,
-        paused: row.paused as boolean,
-      };
+      const settings:
+        TimeSettingsRecord = {
+          minutes:
+            row.daily_minutes
+              as number,
+          quietStart:
+            String(
+              row.quiet_start,
+            ).slice(0, 5),
+          quietEnd:
+            String(
+              row.quiet_end,
+            ).slice(0, 5),
+          homework:
+            row.homework_enabled
+              as boolean,
+          voice:
+            row.voice_enabled
+              as boolean,
+          createWorld:
+            row.create_world_enabled
+              as boolean,
+          paused:
+            row.paused as boolean,
+        };
 
-      window.localStorage.setItem(
+      window.sessionStorage.setItem(
         storageKey(childId),
-        JSON.stringify(settings),
+        JSON.stringify(
+          settings,
+        ),
       );
 
       return settings;
@@ -65,16 +101,22 @@ export async function loadTimeSettings(
 
   try {
     const stored =
-      window.localStorage.getItem(storageKey(childId));
+      window.sessionStorage.getItem(
+        storageKey(childId),
+      );
 
     if (stored) {
       return {
         ...defaultTimeSettings,
-        ...(JSON.parse(stored) as Partial<TimeSettingsRecord>),
+        ...(JSON.parse(
+          stored,
+        ) as Partial<
+          TimeSettingsRecord
+        >),
       };
     }
   } catch {
-    // fall through to defaults
+    // Fall through to defaults.
   }
 
   return defaultTimeSettings;
@@ -82,47 +124,74 @@ export async function loadTimeSettings(
 
 export async function saveTimeSettings(
   childId: string,
-  settings: TimeSettingsRecord,
+  settings:
+    TimeSettingsRecord,
 ) {
-  window.localStorage.setItem(
+  purgeLegacyPersistentPrototypeState();
+
+  window.sessionStorage.setItem(
     storageKey(childId),
     JSON.stringify(settings),
   );
 
-  const identity = getLocalFamilyIdentity();
-  const supabase = getLiioSupabaseBrowserClient();
+  const identity =
+    getLocalFamilyIdentity();
+
+  const supabase =
+    getLiioSupabaseBrowserClient();
 
   if (!identity || !supabase) {
     return;
   }
 
-  await supabase.rpc("liio_update_time_limits", {
-    p_family_id: identity.familyId,
-    p_owner_secret: identity.ownerSecret,
-    p_child_id: childId,
-    p_daily_minutes: settings.minutes,
-    p_quiet_start: settings.quietStart,
-    p_quiet_end: settings.quietEnd,
-    p_homework_enabled: settings.homework,
-    p_voice_enabled: settings.voice,
-    p_create_world_enabled: settings.createWorld,
-    p_paused: settings.paused,
-  });
+  await supabase.rpc(
+    "liio_update_time_limits",
+    {
+      p_family_id:
+        identity.familyId,
+      p_owner_secret:
+        identity.ownerSecret,
+      p_child_id: childId,
+      p_daily_minutes:
+        settings.minutes,
+      p_quiet_start:
+        settings.quietStart,
+      p_quiet_end:
+        settings.quietEnd,
+      p_homework_enabled:
+        settings.homework,
+      p_voice_enabled:
+        settings.voice,
+      p_create_world_enabled:
+        settings.createWorld,
+      p_paused:
+        settings.paused,
+    },
+  );
 }
 
 export async function saveFamilyLanguage(
-  language: "pt" | "en" | "es" | "de",
+  language:
+    "pt" | "en" | "es" | "de",
 ) {
-  const identity = getLocalFamilyIdentity();
-  const supabase = getLiioSupabaseBrowserClient();
+  const identity =
+    getLocalFamilyIdentity();
+
+  const supabase =
+    getLiioSupabaseBrowserClient();
 
   if (!identity || !supabase) {
     return;
   }
 
-  await supabase.rpc("liio_set_language", {
-    p_family_id: identity.familyId,
-    p_owner_secret: identity.ownerSecret,
-    p_language: language,
-  });
+  await supabase.rpc(
+    "liio_set_language",
+    {
+      p_family_id:
+        identity.familyId,
+      p_owner_secret:
+        identity.ownerSecret,
+      p_language: language,
+    },
+  );
 }

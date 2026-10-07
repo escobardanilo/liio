@@ -24,10 +24,57 @@ const ACTIVE_CHILD_KEY =
 const FAMILY_CODE_KEY =
   "liio-family-device-code";
 
-function readJson<T>(key: string): T | null {
+const PERSISTENT_KEYS_TO_KEEP = new Set([
+  "liio-ui-language",
+]);
+
+let legacyStoragePurged = false;
+
+export function purgeLegacyPersistentPrototypeState() {
+  if (legacyStoragePurged) {
+    return;
+  }
+
+  legacyStoragePurged = true;
+
+  try {
+    const keys: string[] = [];
+
+    for (
+      let index = 0;
+      index < window.localStorage.length;
+      index += 1
+    ) {
+      const key =
+        window.localStorage.key(index);
+
+      if (
+        key?.startsWith("liio-") &&
+        !PERSISTENT_KEYS_TO_KEEP.has(key)
+      ) {
+        keys.push(key);
+      }
+    }
+
+    for (const key of keys) {
+      window.localStorage.removeItem(key);
+    }
+
+    document.cookie =
+      "liio_parent_session=; Path=/; Max-Age=0; SameSite=Lax";
+  } catch {
+    // Prototype state still works from sessionStorage.
+  }
+}
+
+function readJson<T>(
+  key: string,
+): T | null {
+  purgeLegacyPersistentPrototypeState();
+
   try {
     const raw =
-      window.localStorage.getItem(key);
+      window.sessionStorage.getItem(key);
 
     return raw
       ? (JSON.parse(raw) as T)
@@ -35,6 +82,36 @@ function readJson<T>(key: string): T | null {
   } catch {
     return null;
   }
+}
+
+export function clearPrototypeSessionState() {
+  try {
+    const keys: string[] = [];
+
+    for (
+      let index = 0;
+      index < window.sessionStorage.length;
+      index += 1
+    ) {
+      const key =
+        window.sessionStorage.key(index);
+
+      if (key?.startsWith("liio-")) {
+        keys.push(key);
+      }
+    }
+
+    for (const key of keys) {
+      window.sessionStorage.removeItem(key);
+    }
+  } catch {
+    // Nothing else to clear.
+  }
+
+  purgeLegacyPersistentPrototypeState();
+
+  document.cookie =
+    "liio_parent_session=; Path=/; Max-Age=0; SameSite=Lax";
 }
 
 export function getParentProfile() {
@@ -46,14 +123,18 @@ export function getParentProfile() {
 export function saveParentProfile(
   profile: ParentProfile,
 ) {
-  window.localStorage.setItem(
+  purgeLegacyPersistentPrototypeState();
+
+  window.sessionStorage.setItem(
     PARENT_PROFILE_KEY,
     JSON.stringify(profile),
   );
 }
 
 export function getSelectedChildId() {
-  return window.localStorage.getItem(
+  purgeLegacyPersistentPrototypeState();
+
+  return window.sessionStorage.getItem(
     SELECTED_CHILD_KEY,
   );
 }
@@ -61,15 +142,17 @@ export function getSelectedChildId() {
 export function setSelectedChildId(
   childId: string | null,
 ) {
+  purgeLegacyPersistentPrototypeState();
+
   if (childId) {
-    window.localStorage.setItem(
+    window.sessionStorage.setItem(
       SELECTED_CHILD_KEY,
       childId,
     );
     return;
   }
 
-  window.localStorage.removeItem(
+  window.sessionStorage.removeItem(
     SELECTED_CHILD_KEY,
   );
 }
@@ -83,7 +166,9 @@ export function getActiveChildProfile() {
 export function saveActiveChildProfile(
   profile: ActiveChildProfile,
 ) {
-  window.localStorage.setItem(
+  purgeLegacyPersistentPrototypeState();
+
+  window.sessionStorage.setItem(
     ACTIVE_CHILD_KEY,
     JSON.stringify(profile),
   );
@@ -98,14 +183,18 @@ export function getStoredPairingCode() {
 export function saveStoredPairingCode(
   code: StoredPairingCode,
 ) {
-  window.localStorage.setItem(
+  purgeLegacyPersistentPrototypeState();
+
+  window.sessionStorage.setItem(
     FAMILY_CODE_KEY,
     JSON.stringify(code),
   );
 }
 
 export function clearStoredPairingCode() {
-  window.localStorage.removeItem(
+  purgeLegacyPersistentPrototypeState();
+
+  window.sessionStorage.removeItem(
     FAMILY_CODE_KEY,
   );
 }
