@@ -1,4 +1,5 @@
 import type {
+  FamilyIdentity,
   ParentProfile,
 } from "@/lib/domain/family";
 
@@ -15,66 +16,38 @@ export type StoredPairingCode = {
   expiresAt: string;
 };
 
+const LANGUAGE_KEY =
+  "liio-ui-language";
+
 const PARENT_PROFILE_KEY =
   "liio-parent-profile";
+
+const FAMILY_IDENTITY_KEY =
+  "liio-family-identity";
+
+const CHILDREN_KEY =
+  "liio-parent-child-profiles";
+
 const SELECTED_CHILD_KEY =
   "liio-selected-child-id";
+
 const ACTIVE_CHILD_KEY =
   "liio-active-child-profile";
+
 const FAMILY_CODE_KEY =
   "liio-family-device-code";
 
-const PERSISTENT_KEYS_TO_KEEP = new Set([
-  "liio-ui-language",
-]);
-
-let legacyStoragePurged = false;
-
-export function purgeLegacyPersistentPrototypeState() {
-  if (legacyStoragePurged) {
-    return;
-  }
-
-  legacyStoragePurged = true;
-
-  try {
-    const keys: string[] = [];
-
-    for (
-      let index = 0;
-      index < window.localStorage.length;
-      index += 1
-    ) {
-      const key =
-        window.localStorage.key(index);
-
-      if (
-        key?.startsWith("liio-") &&
-        !PERSISTENT_KEYS_TO_KEEP.has(key)
-      ) {
-        keys.push(key);
-      }
-    }
-
-    for (const key of keys) {
-      window.localStorage.removeItem(key);
-    }
-
-    document.cookie =
-      "liio_parent_session=; Path=/; Max-Age=0; SameSite=Lax";
-  } catch {
-    // Prototype state still works from sessionStorage.
-  }
-}
+const DEVICE_KEY =
+  "liio-device-identity";
 
 function readJson<T>(
   key: string,
 ): T | null {
-  purgeLegacyPersistentPrototypeState();
-
   try {
     const raw =
-      window.sessionStorage.getItem(key);
+      window.sessionStorage.getItem(
+        key,
+      );
 
     return raw
       ? (JSON.parse(raw) as T)
@@ -84,34 +57,75 @@ function readJson<T>(
   }
 }
 
-export function clearPrototypeSessionState() {
-  try {
-    const keys: string[] = [];
+function writeJson(
+  key: string,
+  value: unknown,
+) {
+  window.sessionStorage.setItem(
+    key,
+    JSON.stringify(value),
+  );
+}
 
-    for (
-      let index = 0;
-      index < window.sessionStorage.length;
-      index += 1
+function removeLiioKeysFrom(
+  storage: Storage,
+  keepLanguage: boolean,
+) {
+  const keys: string[] = [];
+
+  for (
+    let index = 0;
+    index < storage.length;
+    index += 1
+  ) {
+    const key =
+      storage.key(index);
+
+    if (
+      key?.startsWith("liio-") &&
+      !(
+        keepLanguage &&
+        key === LANGUAGE_KEY
+      )
     ) {
-      const key =
-        window.sessionStorage.key(index);
-
-      if (key?.startsWith("liio-")) {
-        keys.push(key);
-      }
+      keys.push(key);
     }
-
-    for (const key of keys) {
-      window.sessionStorage.removeItem(key);
-    }
-  } catch {
-    // Nothing else to clear.
   }
 
-  purgeLegacyPersistentPrototypeState();
+  for (const key of keys) {
+    storage.removeItem(key);
+  }
+}
+
+export function clearLegacyPersistentPrototypeState() {
+  try {
+    removeLiioKeysFrom(
+      window.localStorage,
+      true,
+    );
+  } catch {
+    // localStorage may be unavailable.
+  }
 
   document.cookie =
     "liio_parent_session=; Path=/; Max-Age=0; SameSite=Lax";
+}
+
+export function resetPrototypeFamilyContext() {
+  try {
+    removeLiioKeysFrom(
+      window.sessionStorage,
+      false,
+    );
+  } catch {
+    // sessionStorage may be unavailable.
+  }
+
+  clearLegacyPersistentPrototypeState();
+}
+
+export function clearPrototypeSessionState() {
+  resetPrototypeFamilyContext();
 }
 
 export function getParentProfile() {
@@ -123,32 +137,69 @@ export function getParentProfile() {
 export function saveParentProfile(
   profile: ParentProfile,
 ) {
-  purgeLegacyPersistentPrototypeState();
-
-  window.sessionStorage.setItem(
+  writeJson(
     PARENT_PROFILE_KEY,
-    JSON.stringify(profile),
+    profile,
+  );
+}
+
+export function getFamilyIdentity() {
+  return readJson<FamilyIdentity>(
+    FAMILY_IDENTITY_KEY,
+  );
+}
+
+export function saveFamilyIdentity(
+  identity: FamilyIdentity,
+) {
+  writeJson(
+    FAMILY_IDENTITY_KEY,
+    identity,
+  );
+}
+
+export function getChildrenSnapshot() {
+  return (
+    readJson<
+      Array<{
+        id: string;
+        name: string;
+        age: number;
+      }>
+    >(CHILDREN_KEY) ?? []
+  );
+}
+
+export function saveChildrenSnapshot(
+  children: Array<{
+    id: string;
+    name: string;
+    age: number;
+  }>,
+) {
+  writeJson(
+    CHILDREN_KEY,
+    children,
   );
 }
 
 export function getSelectedChildId() {
-  purgeLegacyPersistentPrototypeState();
-
-  return window.sessionStorage.getItem(
-    SELECTED_CHILD_KEY,
+  return (
+    window.sessionStorage.getItem(
+      SELECTED_CHILD_KEY,
+    )
   );
 }
 
 export function setSelectedChildId(
   childId: string | null,
 ) {
-  purgeLegacyPersistentPrototypeState();
-
   if (childId) {
     window.sessionStorage.setItem(
       SELECTED_CHILD_KEY,
       childId,
     );
+
     return;
   }
 
@@ -164,13 +215,12 @@ export function getActiveChildProfile() {
 }
 
 export function saveActiveChildProfile(
-  profile: ActiveChildProfile,
+  profile:
+    ActiveChildProfile,
 ) {
-  purgeLegacyPersistentPrototypeState();
-
-  window.sessionStorage.setItem(
+  writeJson(
     ACTIVE_CHILD_KEY,
-    JSON.stringify(profile),
+    profile,
   );
 }
 
@@ -183,18 +233,20 @@ export function getStoredPairingCode() {
 export function saveStoredPairingCode(
   code: StoredPairingCode,
 ) {
-  purgeLegacyPersistentPrototypeState();
-
-  window.sessionStorage.setItem(
+  writeJson(
     FAMILY_CODE_KEY,
-    JSON.stringify(code),
+    code,
   );
 }
 
 export function clearStoredPairingCode() {
-  purgeLegacyPersistentPrototypeState();
-
   window.sessionStorage.removeItem(
     FAMILY_CODE_KEY,
+  );
+}
+
+export function clearDeviceIdentity() {
+  window.sessionStorage.removeItem(
+    DEVICE_KEY,
   );
 }
